@@ -1,19 +1,12 @@
-//
-// Created by yuval on 18/12/2019.
-//
-
 #include "Singleton.h"
-
 /* Null, because instance will be initialized on demand. */
 Singleton* Singleton::instance = 0;
-
 Singleton* Singleton::getInstance()
 {
     if (instance == 0)
     {
         instance = new Singleton();
     }
-
     return instance;
 }
 
@@ -24,12 +17,14 @@ Singleton::Singleton()
     commandMAp["openDataServer"] = openDataServer;
     CommandInterface *connectCommand = new ConnectCommand();
     commandMAp["connectControlClient"] = connectCommand;
-    CommandInterface *defineVarCommand = new DefineVarCommand();
+    CommandInterface *defineVarCommand = new DefineVarCommand(this->valuesFromSim);
     commandMAp["var"] = defineVarCommand;
     CommandInterface *printCommand = new PrintCommand();
     commandMAp["Print"] = printCommand;
     CommandInterface *sleepCommand = new SleepCommand();
     commandMAp["Sleep"] = sleepCommand;
+    CommandInterface *equalCommand = new EqualCommand();
+    commandMAp["="] = equalCommand;
 }
 
  vector<string> Singleton::lexer(string s){
@@ -68,22 +63,31 @@ Singleton::Singleton()
 }
 
 void Singleton:: parser(vector<string> lexerVector) {
-    // parser
+  int j = 1;
     for (int i = 0; i < lexerVector.size(); i++) {
         map<string,CommandInterface*>::iterator it= this->commandMAp.find(lexerVector[i]);
-        if (it != this->commandMAp.end()) {
+      if (it != this->commandMAp.end()) {
             vector<string> valString;
             if(lexerVector[i].compare("openDataServer")==0) {
-                valString.push_back(lexerVector[i+1]);
+              printf("openDataServer\n");//delete later
+              valString.push_back(lexerVector[i+1]);
             }
             else if(lexerVector[i].compare("connectControlClient")==0) {
+                printf("connectControlClient\n");//delete later
                 valString.push_back(lexerVector[i+1]);
                 valString.push_back(lexerVector[i+2]);
             }
             else if(lexerVector[i].compare("var")==0) {
+                printf("%d var\n", j);
+                j++;
                 valString.push_back(lexerVector[i+1]);
                 valString.push_back(lexerVector[i+2]);
-                valString.push_back(lexerVector[i+4]);
+                if(valString[valString.size() - 1] == "=")
+                {
+                  valString.push_back(lexerVector[i+3]);
+                } else{
+                  valString.push_back(lexerVector[i+4].erase(0,1));
+                }
             }
             else if(lexerVector[i].compare("Print")==0) {
                 valString.push_back(lexerVector[i+1]);
@@ -91,20 +95,53 @@ void Singleton:: parser(vector<string> lexerVector) {
             else if(lexerVector[i].compare("Sleep")==0) {
                 valString.push_back(lexerVector[i+1]);
             }
-            // make execute on the command
-                int skipCount = (it->second)->execute(valString);
-
-            /*if(lexerVector[i].compare("var")==0) {
-                struct VaribableData objectDAta;
-                objectDAta.sim =lexerVector[i+4];
-                if(lexerVector[i+2].compare("->")){
-                    objectDAta.inOut = 1;
-                } else {
-                    objectDAta.inOut = 0;
-                }
-                this->symbolTable[lexerVector[i+1]] = objectDAta;
-            }*/
+            else if(lexerVector[i].compare("=") == 0) {
+              printf("%d equal\n", j);//delete later
+              j++;
+              valString.push_back(lexerVector[i-1]);
+              valString.push_back(lexerVector[i+1]);
+            }
+            // make execute of the command
+            int skipCount = (it->second)->execute(valString);
             i+=skipCount;
         }
     }
+}
+void Singleton:: createSimValuesMap(){
+  this->valuesFromSim[0] = "instrumentation/airspeed-indicator/indicated-speed-kt";
+  this->valuesFromSim[1] = "sim/time/warp";
+  this->valuesFromSim[2] = "controls/switches/magnetos";
+  this->valuesFromSim[3] = "instrumentation/heading-indicator/offset-deg";
+  this->valuesFromSim[4] = "instrumentation/altimeter/indicated-altitude-ft";
+  this->valuesFromSim[5] = "instrumentation/altimeter/pressure-alt-ft";
+  this->valuesFromSim[6] = "instrumentation/attitude-indicator/indicated-pitch-deg";
+  this->valuesFromSim[7] = "instrumentation/attitude-indicator/indicated-roll-deg";
+  this->valuesFromSim[8] = "instrumentation/attitude-indicator/internal-pitch-deg";
+  this->valuesFromSim[9] = "instrumentation/attitude-indicator/internal-roll-deg";
+  this->valuesFromSim[10] = "instrumentation/encoder/indicated-altitude-ft";
+  this->valuesFromSim[11] = "instrumentation/encoder/pressure-alt-ft";
+  this->valuesFromSim[12] = "instrumentation/gps/indicated-altitude-ft";
+  this->valuesFromSim[13] = "instrumentation/gps/indicated-ground-speed-kt";
+  this->valuesFromSim[14] = "instrumentation/gps/indicated-vertical-speed";
+  this->valuesFromSim[15] = "instrumentation/heading-indicator/indicated-heading-deg";
+  this->valuesFromSim[16] = "instrumentation/magnetic-compass/indicated-heading-deg";
+  this->valuesFromSim[17] = "instrumentation/slip-skid-ball/indicated-slip-skid";
+  this->valuesFromSim[18] = "instrumentation/turn-indicator/indicated-turn-rate";
+  this->valuesFromSim[19] = "instrumentation/vertical-speed-indicator/indicated-speed-fpm";
+  this->valuesFromSim[20] = "controls/flight/aileron";
+  this->valuesFromSim[21] = "controls/flight/elevator";
+  this->valuesFromSim[22] = "controls/flight/rudder";
+  this->valuesFromSim[23] = "controls/flight/flaps";
+  this->valuesFromSim[24] = "controls/engines/engine/throttle";
+  this->valuesFromSim[25] = "controls/engines/current-engine/throttle";
+  this->valuesFromSim[26] = "controls/switches/master-avionics";
+  this->valuesFromSim[27] = "controls/switches/starter";
+  this->valuesFromSim[28] = "engines/active-engine/auto-start";
+  this->valuesFromSim[29] = "controls/flight/speedbrake";
+  this->valuesFromSim[30] = "sim/model/c172p/brake-parking";
+  this->valuesFromSim[31] = "controls/engines/engine/primer";
+  this->valuesFromSim[32] = "controls/engines/current-engine/mixture";
+  this->valuesFromSim[33] = "controls/switches/master-bat";
+  this->valuesFromSim[34] = "controls/switches/master-alt";
+  this->valuesFromSim[35] = "engines/engine/rpm";
 }

@@ -1,91 +1,95 @@
-//
-// Created by yuval on 18/12/2019.
-//
 #include <string>
 #include <vector>
 #include "commandPattern.h"
 #include <iostream>
-#include <string>
-int OpenServerCommand::serverThread(int port){
-    //create socket
+std::mutex mutex_lock;
+int OpenServerCommand::execute(vector<string> valString){
+  port = stoi(valString[0]);
+  thread ts(&OpenServerCommand::openServer,this);
+  ts.detach();
+  while(!is_done)
+  {
+    this_thread::sleep_for(chrono::microseconds(100));
+  }
+  return 1;
+}
+int OpenServerCommand::openServer(){
     int socketfd = socket(AF_INET, SOCK_STREAM, 0);
     if (socketfd == -1) {
-        //error
         std::cerr << "Could not create a socket"<<std::endl;
         return -1;
     }
-    //bind socket to IP address
-    // we first need to create the sockaddr obj.
-    sockaddr_in address; //in means IP4
+    sockaddr_in address;
     address.sin_family = AF_INET;
-    address.sin_addr.s_addr = INADDR_ANY; //give me any IP allocated for my machine
+    address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(port);
-    //we need to convert our number
-    // to a number that the network understands.
-
-    //the actual bind command
     if (bind(socketfd, (struct sockaddr *) &address, sizeof(address)) == -1) {
         std::cerr<<"Could not bind the socket to an IP"<<std::endl;
         return -2;
     }
-    //making socket listen to the port
-    if (listen(socketfd, 5) == -1) { //can also set to SOMAXCON (max connections)
+    if (listen(socketfd, 5) == -1) {
         std::cerr<<"Error during listening command"<<std::endl;
         return -3;
     } else{
         std::cout<<"Server is now listening ..."<<std::endl;
     }
-    // accepting a client
-    int client_socket = accept(socketfd, (struct sockaddr *)&address, (socklen_t*)&address);
+    client_socket = accept(socketfd, (struct sockaddr *)&address, (socklen_t*)&address);
     if (client_socket == -1) {
         std::cerr<<"Error accepting client"<<std::endl;
         return -4;
     }
-    close(socketfd); //closing the listening socket
-    //reading from client
+    is_done = true;
+    close(socketfd);
     char buffer[1024] = {0};
-    //while reade
     while(read( client_socket , buffer, 1024))
     {
-        std::cout<<buffer<<std::endl;
+      std::cout<<buffer<<std::endl;
     }
     //int valread = read( client_socket , buffer, 1024);
     //std::cout<<buffer<<std::endl;
-    //writing back to client
+    simDataParser(buffer);
+    /*for(int j = 0; j < 36; j++){
+      printf("our print: %f, ",this->simValues[j]);
+    }*/
     char *hello = "Hello, I can hear you! \n";
-    //send(client_socket , hello , strlen(hello) , 0 );
-    //std::cout<<"Hello message sent\n"<<std::endl;
+    send(client_socket , hello , strlen(hello) , 0);
+    std::cout<<"Hello message sent\n"<<std::endl;
     return 0;
 }
-
-int OpenServerCommand::execute(vector<string> valString){
-    int port = stoi(valString[0]);
-    thread tr(serverThread, port);
-    tr.detach();
-    while(!is_done)
-    {
-        this_thread::sleep_for(chrono::microseconds(100));
-     //   is_done = true;
-    }
-    return 1;
+void OpenServerCommand::simDataParser(char * buffer) {
+  int i = 0;
+  char * token;
+  token = strtok (buffer,",");
+  while(token != NULL)
+  {
+    this->simValues[i] = stof(token);
+    token = strtok (NULL, ",");
+    i++;
+  }
 }
-int ConnectCommand::clientThread(string ip, int port) {
-    is_done = false;
-    //create socket
-    int client_socket = socket(AF_INET, SOCK_STREAM, 0);
+int ConnectCommand::execute(vector<string> valString){
+  //is_done = false;
+
+  ip = valString[0];
+  port = stoi(valString[1]);
+  thread tc(&ConnectCommand::openClient,this);
+  tc.detach();
+  /*while(!is_done)
+  {
+    this_thread::sleep_for(chrono::microseconds(100));
+  }*/
+  return 2;
+}
+int ConnectCommand::openClient() {
+    client_socket = socket(AF_INET, SOCK_STREAM, 0);
     if (client_socket == -1) {
-        //error
         std::cerr << "Could not create a socket"<<std::endl;
         return -1;
     }
-    //We need to create a sockaddr obj to hold address of server
-    sockaddr_in address; //in means IP4
-    address.sin_family = AF_INET;//IP4
-    address.sin_addr.s_addr = inet_addr((ip).c_str());  //the localhost address
+    sockaddr_in address;
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = inet_addr((ip).c_str());
     address.sin_port = htons(port);
-    //we need to convert our number (both port & localhost)
-    // to a number that the network understands.
-    // Requesting a connection with the server on local host with port 8081
     int is_connect = connect(client_socket, (struct sockaddr *)&address, sizeof(address));
     if (is_connect == -1) {
         std::cerr << "Could not connect to host server"<<std::endl;
@@ -93,58 +97,111 @@ int ConnectCommand::clientThread(string ip, int port) {
     } else {
         std::cout<<"Client is now connected to server" <<std::endl;
     }
-    //if here we made a connection
-    char hello[] = "Hi from client";
-    int is_sent = send(client_socket , hello , strlen(hello) , 0 );
-    if (is_sent == -1) {
-        std::cout<<"Error sending message"<<std::endl;
-    } else {
-        std::cout<<"Hello message sent to server" <<std::endl;
+    while (!Singleton().getInstance()->messages_from_client.empty()) {
+      mutex_lock.lock();
+      printf("message\n");//delete later
+      int is_sent = send(client_socket,
+                         Singleton().getInstance()->messages_from_client.front().c_str(),
+                         Singleton().getInstance()->messages_from_client.size(),
+                         0);
+      if (is_sent == -1) {
+        std::cout << "Error sending message" << std::endl;
+      } else {
+        Singleton().getInstance()->messages_from_client.pop();
+        std::cout << "Hello message sent to server" << std::endl;
+      }
+      mutex_lock.unlock();
     }
     char buffer[1024] = {0};
-    int valread = read( client_socket , buffer, 1024);
-    std::cout<<buffer<<std::endl;
+    int valread = read(client_socket, buffer, 1024);
+    std::cout << buffer << std::endl;
     close(client_socket);
     return 0;
 }
-int ConnectCommand::execute(vector<string> valString){
-    string ip = valString[0];
-    int port = stoi(valString[1]);
-    thread tr(clientThread, ip, port);
-    tr.detach();
-    while(!is_done)
-    {
-        this_thread::sleep_for(chrono::microseconds(100));
-      //  is_done = true;
-    }
-    return 2;
+DefineVarCommand::DefineVarCommand(string simDirectories[]){
+  for(int i= 0; i < 36; i++){
+    this->simDirectoris[i] = simDirectories[i];
+  }
 }
-
 int DefineVarCommand::execute(vector<string> valString){
-    //to add the xml map later
-    struct VaribableData objectDAta;
-    objectDAta.sim =valString[3];
-    if(valString[1].compare("->")){
-        objectDAta.inOut = 1;
-    } else {
-        objectDAta.inOut = 0;
+  if(Singleton().getInstance()->symbolTable.find(valString[2]) == Singleton().getInstance()->symbolTable.end()){
+    if(valString[1].compare("->")==0){
+      ObjectData *objectData = new ObjectData(1, valString[2],0);
+      Singleton().getInstance()->symbolTable[valString[0]] = objectData;
+      return 4;
     }
-    this->symbolTable[valString[0]] = objectDAta;
-    return 4;
+    else if(valString[1].compare("<-")==0){
+      //mutex_lock.lock();
+      ObjectData *objectData = new ObjectData(0, valString[2],0);
+      for(int i = 0, flag = 0; i < 36 && flag == 0; i++){
+        if(this->simDirectoris[i] == objectData->getSim()){
+          objectData->setValue(this->simValues[i]);
+          flag = 1;
+          cout<<objectData->sim << " = " << objectData->value << endl;
+        }
+      }
+      Singleton().getInstance()->symbolTable[valString[0]] = objectData;
+      //mutex_lock.unlock();
+      return 4;
+    }
+  } else{
+    Singleton().getInstance()->symbolTable[valString[0]] = Singleton().getInstance()->symbolTable.find(valString[2])->second;
+    }
+    //Expression *e = new Variable(objectData.name, objectData.value);//value is float, needs double
+    //this->symbolTable.insert(pair<Expression*,VariableData>(e,objectData));
+    return 3;
 }
-
+int EqualCommand::execute(vector<string> valString) {
+  if (regex_match(valString[1], regex("^[-+]?[0-9]+\\.?[0-9]*$"))) {//autostart = 1
+    mutex_lock.lock();
+    Singleton().getInstance()->symbolTable.find(valString[0])->second->setValue(stof(valString[1]));
+    string str = "set " + Singleton().getInstance()->symbolTable.find(valString[0])->second->sim + " " + valString[1] + "\r\n";
+    Singleton().getInstance()->messages_from_client.push(str);
+    cout<<Singleton().getInstance()->messages_from_client.front()<<endl;
+    mutex_lock.unlock();
+  }
+    /*int flag = 0;
+    map<Expression*,VariableData>::iterator it = this->symbolTable.begin();
+    while(it != this->symbolTable.end() && flag == 0){
+      if (valString[2] == it->second.name){
+        flag = 1;
+        Expression *e = new Variable(valString[2], it->first->calculate());
+        struct VariableData objectData = it->second;
+        objectData.name = valString[2];
+        this->symbolTable.insert(pair<Expression*,VariableData>(e, objectData));
+      }
+      else{
+        it++;
+      }
+    }*/
+    //int flag = 0;
+    //map<Expression*,VariableData>::iterator it = this->symbolTable.begin();
+    /*while(it != this->symbolTable.end() && flag == 0){
+      if (valString[0] == it->second.name){
+        flag = 1;
+        it->second.value = stof(valString[1]);
+        string str = "set " + it->second.sim + " " + valString[1];
+        strcpy(this->orderForSim, str.c_str());
+      }
+      else{
+        it++;
+      }
+    }
+  }*/
+    //case 3: rudder = (h0 - heading)/80
+    return 1;
+}
 int PrintCommand::execute(vector<string> valString){
-    this->outPutString = valString[0];
-    cout << valString[0] << endl;
+    string outPutString = valString[0];
+    cout << outPutString << endl;
     return 1;
 }
-
 int SleepCommand::execute(vector<string> valString){
-    this->sleep = stoi(valString[0]);
-    this_thread::sleep_for(chrono::milliseconds(this->sleep));
+    int sleep = stoi(valString[0]);
+    this_thread::sleep_for(chrono::milliseconds(sleep));
     return 1;
 }
-
+/*
 int ConditionParser::execute(vector<string> valString){
     return 0;
 }
@@ -155,4 +212,4 @@ int LoopCommand::execute(vector<string> valString){
 
 int IfCommand::execute(vector<string> valString){
     return 0;
-}
+}*/

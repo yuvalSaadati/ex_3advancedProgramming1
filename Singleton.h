@@ -1,7 +1,3 @@
-//
-// Created by yuval on 18/12/2019.
-//
-
 #ifndef EX33_SINGLETON_H
 #define EX33_SINGLETON_H
 #include <iostream>
@@ -11,24 +7,21 @@
 #include "commandPattern.h"
 #include "Singleton.h"
 #include <map>
-
-
+#include <queue>
+#include "CommandInterface.h"
+#include "ObjectData.h"
+using namespace std;
 class Singleton {
-private:
-    /* Here will be the instance stored. */
-    static Singleton* instance;
-    /* Private constructor to prevent instancing. */
+ public:
     Singleton();
-
-public:
-    /* Static access method. */
+    static Singleton* instance;
     static Singleton* getInstance();
+    map<string,ObjectData*> symbolTable;
     map<string,CommandInterface*> commandMAp;
-    //map<string,VaribableData> symbolTable;
+    string valuesFromSim[36];
     void parser(vector<string> lexerVector);
     vector<string> lexer(string s);
-
+    void createSimValuesMap();
+    queue<string>messages_from_client;
 };
-
-
 #endif //EX33_SINGLETON_H

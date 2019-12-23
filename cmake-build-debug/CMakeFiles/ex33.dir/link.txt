@@ -1,0 +1,1 @@
+/usr/bin/c++  -pthread -g   CMakeFiles/ex33.dir/main.cpp.o CMakeFiles/ex33.dir/commandPattern.cpp.o CMakeFiles/ex33.dir/Singleton.cpp.o CMakeFiles/ex33.dir/Calculate.cpp.o CMakeFiles/ex33.dir/ObjectData.cpp.o  -o ex33 

@@ -1,6 +1,3 @@
-//
-// Created by yuval on 18/12/2019.
-//
 #include <iostream>
 #include <chrono>
 #include <thread>
@@ -11,72 +8,67 @@
 #include <arpa/inet.h>
 #include "CommandInterface.h"
 #include "Singleton.h"
+#include "Expression.h"
+#include "Calculate.h"
+#include <mutex>
+
 using namespace std;
 #ifndef EX33_COMMANPATTERN_H
 #define EX33_COMMANPATTERN_H
-
 static bool is_done = false;
-class commandPattern {
+//static bool getInfo = true;
 
-};
-
-struct VaribableData
-{
-    int inOut; // in(->)=1 out(<-)=0
-    string sim;
-    int value = 0;
-};
+class commandPattern {};
 
 class OpenServerCommand : public CommandInterface{
-    mutex mutex_lock;
+   int client_socket;
+   int port;
 public:
-    OpenServerCommand () {}
-    static int serverThread(int port);
-    void xmlParser();
+    int openServer();
+    void simDataParser(char buffer[]);
     virtual int execute(vector<string> valString);
-    virtual ~OpenServerCommand() {}
-
+        int readFromSim();
+virtual ~OpenServerCommand() {}
 };
 
 class ConnectCommand : public CommandInterface{
-    mutex mutex_lock;
+  int client_socket;
+  string ip;
+  int port;
 public:
-    ConnectCommand () {}
-    static int clientThread(string ip, int port);
-    virtual int execute(vector<string> valString);
+    int openClient();
+    int execute(vector<string> valString) override;
     virtual ~ConnectCommand() {}
 };
 
 class DefineVarCommand : public CommandInterface{
-    map<string,VaribableData> symbolTable;
-    //string name;
-    //struct VaribableData objectData;
-
-    //adding here files and constrctor
-public:
-    DefineVarCommand () {}
-    virtual int execute(vector<string> valString);
+    string name;
+    string simDirectoris[36];
+ public:
+    DefineVarCommand(string simDirectoris[]);
+    virtual int execute(vector<string> valString) override;
     virtual ~DefineVarCommand() {}
 };
-
-class PrintCommand : public CommandInterface{
-    string outPutString;
+class EqualCommand : public CommandInterface {
+ public:
+  int execute(vector<string> valString) override;
+  virtual ~EqualCommand(){}
+};
+class PrintCommand : public CommandInterface {
 public:
-    PrintCommand () {}
-    virtual int execute(vector<string> valString);
+    int execute(vector<string> valString) override;
     virtual ~PrintCommand() {}
 };
 
 class SleepCommand : public CommandInterface{
-    int sleep;
 public:
-    SleepCommand () {}
-    virtual int execute(vector<string> valString);
+    //SleepCommand () {}
+    virtual int execute(vector<string> valString) override;
     virtual ~SleepCommand() {}
 };
-
+/*
 class ConditionParser : public CommandInterface{
-    bool condition;
+    bool condition{};
 public:
     ConditionParser () {}
     virtual int execute(vector<string> valString);
@@ -92,10 +84,11 @@ public:
 };
 
 class IfCommand : public CommandInterface{
-    bool condition;
+    bool condition{};
 public:
     IfCommand () {}
     virtual int execute(vector<string> valString);
     virtual ~IfCommand() {}
 };
+*/
 #endif //EX33_COMMANPATTERN_H
