@@ -66,7 +66,7 @@ public:
     virtual int execute(vector<string> valString) override;
     virtual ~SleepCommand() {}
 };
-/*
+
 class ConditionParser : public CommandInterface{
     bool condition{};
 public:
@@ -90,5 +90,5 @@ public:
     virtual int execute(vector<string> valString);
     virtual ~IfCommand() {}
 };
-*/
+
 #endif //EX33_COMMANPATTERN_H

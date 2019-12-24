@@ -201,7 +201,7 @@ int SleepCommand::execute(vector<string> valString){
     this_thread::sleep_for(chrono::milliseconds(sleep));
     return 1;
 }
-/*
+
 int ConditionParser::execute(vector<string> valString){
     return 0;
 }
@@ -212,4 +212,4 @@ int LoopCommand::execute(vector<string> valString){
 
 int IfCommand::execute(vector<string> valString){
     return 0;
-}*/
+}
