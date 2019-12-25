@@ -38,23 +38,17 @@ int OpenServerCommand::openServer(){
         std::cerr<<"Error accepting client"<<std::endl;
         return -4;
     }
-    is_done = true;
     close(socketfd);
+    is_done = true;
     char buffer[1024] = {0};
-    while(read( client_socket , buffer, 1024))
-    {
-      std::cout<<buffer<<std::endl;
+    while(true){
+      int valread = read( client_socket , buffer, 1024);
+      cout<<buffer<<std::endl;
+      simDataParser(buffer);
+      char *hello = "Hello, I can hear you! \n";
+      send(client_socket , hello , strlen(hello) , 0);
+      std::cout<<"Hello message sent\n"<<std::endl;
     }
-    //int valread = read( client_socket , buffer, 1024);
-    //std::cout<<buffer<<std::endl;
-    simDataParser(buffer);
-    /*for(int j = 0; j < 36; j++){
-      printf("our print: %f, ",this->simValues[j]);
-    }*/
-    char *hello = "Hello, I can hear you! \n";
-    send(client_socket , hello , strlen(hello) , 0);
-    std::cout<<"Hello message sent\n"<<std::endl;
-    return 0;
 }
 void OpenServerCommand::simDataParser(char * buffer) {
   int i = 0;
@@ -68,16 +62,10 @@ void OpenServerCommand::simDataParser(char * buffer) {
   }
 }
 int ConnectCommand::execute(vector<string> valString){
-  //is_done = false;
-
   ip = valString[0];
   port = stoi(valString[1]);
   thread tc(&ConnectCommand::openClient,this);
   tc.detach();
-  /*while(!is_done)
-  {
-    this_thread::sleep_for(chrono::microseconds(100));
-  }*/
   return 2;
 }
 int ConnectCommand::openClient() {
@@ -97,26 +85,25 @@ int ConnectCommand::openClient() {
     } else {
         std::cout<<"Client is now connected to server" <<std::endl;
     }
-    while (!Singleton().getInstance()->messages_from_client.empty()) {
-      mutex_lock.lock();
-      printf("message\n");//delete later
-      int is_sent = send(client_socket,
-                         Singleton().getInstance()->messages_from_client.front().c_str(),
-                         Singleton().getInstance()->messages_from_client.size(),
-                         0);
-      if (is_sent == -1) {
-        std::cout << "Error sending message" << std::endl;
-      } else {
+    while(true){
+      if (!Singleton().getInstance()->messages_from_client.empty()) {
+        mutex_lock.lock();
+        int is_sent = send(client_socket,
+                           Singleton().getInstance()->messages_from_client.front().c_str(),
+                           Singleton().getInstance()->messages_from_client.size(),
+                           0);
         Singleton().getInstance()->messages_from_client.pop();
-        std::cout << "Hello message sent to server" << std::endl;
+        mutex_lock.unlock();
+        if (is_sent == -1) {
+          std::cout<<"Error sending message"<<std::endl;
+        } else {
+          std::cout<<"Hello message sent to server" <<std::endl;
+        }
       }
-      mutex_lock.unlock();
+      else {
+        this_thread::sleep_for(chrono::microseconds(10));
+      }
     }
-    char buffer[1024] = {0};
-    int valread = read(client_socket, buffer, 1024);
-    std::cout << buffer << std::endl;
-    close(client_socket);
-    return 0;
 }
 DefineVarCommand::DefineVarCommand(string simDirectories[]){
   for(int i= 0; i < 36; i++){
@@ -131,7 +118,6 @@ int DefineVarCommand::execute(vector<string> valString){
       return 4;
     }
     else if(valString[1].compare("<-")==0){
-      //mutex_lock.lock();
       ObjectData *objectData = new ObjectData(0, valString[2],0);
       for(int i = 0, flag = 0; i < 36 && flag == 0; i++){
         if(this->simDirectoris[i] == objectData->getSim()){
@@ -141,7 +127,6 @@ int DefineVarCommand::execute(vector<string> valString){
         }
       }
       Singleton().getInstance()->symbolTable[valString[0]] = objectData;
-      //mutex_lock.unlock();
       return 4;
     }
   } else{
@@ -154,10 +139,9 @@ int DefineVarCommand::execute(vector<string> valString){
 int EqualCommand::execute(vector<string> valString) {
   if (regex_match(valString[1], regex("^[-+]?[0-9]+\\.?[0-9]*$"))) {//autostart = 1
     mutex_lock.lock();
-    Singleton().getInstance()->symbolTable.find(valString[0])->second->setValue(stof(valString[1]));
-    string str = "set " + Singleton().getInstance()->symbolTable.find(valString[0])->second->sim + " " + valString[1] + "\r\n";
+    Singleton().getInstance()->symbolTable[valString[0]]->value = stof(valString[1]);
+    string str = "set " + Singleton().getInstance()->symbolTable[valString[0]]->sim + " " + valString[1] + "\r\n";
     Singleton().getInstance()->messages_from_client.push(str);
-    cout<<Singleton().getInstance()->messages_from_client.front()<<endl;
     mutex_lock.unlock();
   }
     /*int flag = 0;

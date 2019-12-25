@@ -47,16 +47,20 @@ Singleton::Singleton()
              token = strtok (lineCharArray,"( ),\"");
              while (token != NULL)
              {
-                 // insert the token into the lexer (vector)
-                 lexerVector.push_back(token);
-                 // the next token in the line
-                 token = strtok (NULL, "() ,\"");
+                if(string(token).compare("Print") == 0){
+                  lexerVector.push_back(token);
+                  token = strtok (NULL, "\")");
+                }
+                // insert the token into the lexer (vector)
+                lexerVector.push_back(token);
+                // the next token in the line.c_str()
+                token = strtok (NULL, "() ,\"");
              }
          }
          flyText.close();
      }
      else {
-         cout << "Error while openning the file" << endl;
+         cout << "Error while opening the file" << endl;
          exit(1);
      }
      return lexerVector;
@@ -69,16 +73,13 @@ void Singleton:: parser(vector<string> lexerVector) {
       if (it != this->commandMAp.end()) {
             vector<string> valString;
             if(lexerVector[i].compare("openDataServer")==0) {
-              printf("openDataServer\n");//delete later
               valString.push_back(lexerVector[i+1]);
             }
             else if(lexerVector[i].compare("connectControlClient")==0) {
-                printf("connectControlClient\n");//delete later
                 valString.push_back(lexerVector[i+1]);
                 valString.push_back(lexerVector[i+2]);
             }
             else if(lexerVector[i].compare("var")==0) {
-                printf("%d var\n", j);
                 j++;
                 valString.push_back(lexerVector[i+1]);
                 valString.push_back(lexerVector[i+2]);
@@ -96,7 +97,6 @@ void Singleton:: parser(vector<string> lexerVector) {
                 valString.push_back(lexerVector[i+1]);
             }
             else if(lexerVector[i].compare("=") == 0) {
-              printf("%d equal\n", j);//delete later
               j++;
               valString.push_back(lexerVector[i-1]);
               valString.push_back(lexerVector[i+1]);
@@ -145,3 +145,54 @@ void Singleton:: createSimValuesMap(){
   this->valuesFromSim[34] = "controls/switches/master-alt";
   this->valuesFromSim[35] = "engines/engine/rpm";
 }
+/*
+float Singleton::calculateExpression(string s) {
+
+  Interpreter *interpreter = new Interpreter();
+  Expression *e = nullptr;
+  string stringExpression = s;
+  char arrayExpression[stringExpression.length() + 1];
+  strcpy(arrayExpression, stringExpression.c_str());
+  // making set to all var which is in symboltable
+  bool createVal = false;
+  bool startWord = true;
+  string variableName = "";
+  for (int i = 0; i < stringExpression.length(); i++) {
+    if (isalpha(arrayExpression[i]) && startWord) {
+      // adding letters into one word which is a name of var
+      variableName += arrayExpression[i];
+      createVal = true;
+      startWord = false;
+      continue;
+    }
+    while ((isalpha(arrayExpression[i]) || isdigit(arrayExpression[i]) || arrayExpression[i] == '_') && createVal) {
+      variableName += arrayExpression[i];
+      i++;
+    }
+    if (createVal) {
+      // the word ended, so we will find the value of val
+      variableName += "=" + to_string(Singleton().getInstance()->symbolTable.find(variableName)->second->getValue());
+      // insert each val into the setVaribles
+      interpreter->setVariables(variableName);
+      // clean the string in order to insert her new var
+      createVal = false;
+      startWord = true;
+      variableName.erase();
+    }
+  }
+  try {
+    e = interpreter->interpret(s);
+    float f = e->calculate();
+    delete e;
+    delete interpreter;
+    return f;
+  } catch (const char *e) {
+    if (e != nullptr) {
+      delete e;
+    }
+    if (interpreter != nullptr) {
+      delete interpreter;
+    }
+  }
+}
+*/
