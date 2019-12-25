@@ -9,8 +9,8 @@ class CommandInterface {
 
 public:
     virtual int execute(vector<string> valString) = 0;
- protected:
-  float simValues[36];
-  char *orderForSim;
+protected:
+    float simValues[36];
+    char *orderForSim;
 };
 #endif //EX33_COMMANDINTERFACE_H

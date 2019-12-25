@@ -12,7 +12,7 @@
 #include "ObjectData.h"
 using namespace std;
 class Singleton {
- public:
+public:
     Singleton();
     static Singleton* instance;
     static Singleton* getInstance();
@@ -22,6 +22,7 @@ class Singleton {
     void parser(vector<string> lexerVector);
     vector<string> lexer(string s);
     void createSimValuesMap();
+    float calculateExpression(string s);
     queue<string>messages_from_client;
 };
 #endif //EX33_SINGLETON_H

@@ -34,19 +34,19 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = /snap/clion/98/bin/cmake/linux/bin/cmake
+CMAKE_COMMAND = /home/yuval/Downloads/CLion-2019.2.5/clion-2019.2.5/bin/cmake/linux/bin/cmake
 
 # The command to remove a file.
-RM = /snap/clion/98/bin/cmake/linux/bin/cmake -E remove -f
+RM = /home/yuval/Downloads/CLion-2019.2.5/clion-2019.2.5/bin/cmake/linux/bin/cmake -E remove -f
 
 # Escaping for special characters.
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/shachar/Documents/GitHub/ex3
+CMAKE_SOURCE_DIR = /home/yuval/Documents/GitHub/ex3
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/shachar/Documents/GitHub/ex3/cmake-build-debug
+CMAKE_BINARY_DIR = /home/yuval/Documents/GitHub/ex3/cmake-build-debug
 
 # Include any dependencies generated for this target.
 include CMakeFiles/ex33.dir/depend.make
@@ -59,68 +59,68 @@ include CMakeFiles/ex33.dir/flags.make
 
 CMakeFiles/ex33.dir/main.cpp.o: CMakeFiles/ex33.dir/flags.make
 CMakeFiles/ex33.dir/main.cpp.o: ../main.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/shachar/Documents/GitHub/ex3/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/ex33.dir/main.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ex33.dir/main.cpp.o -c /home/shachar/Documents/GitHub/ex3/main.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/yuval/Documents/GitHub/ex3/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/ex33.dir/main.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ex33.dir/main.cpp.o -c /home/yuval/Documents/GitHub/ex3/main.cpp
 
 CMakeFiles/ex33.dir/main.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/ex33.dir/main.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/shachar/Documents/GitHub/ex3/main.cpp > CMakeFiles/ex33.dir/main.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/yuval/Documents/GitHub/ex3/main.cpp > CMakeFiles/ex33.dir/main.cpp.i
 
 CMakeFiles/ex33.dir/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/ex33.dir/main.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/shachar/Documents/GitHub/ex3/main.cpp -o CMakeFiles/ex33.dir/main.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/yuval/Documents/GitHub/ex3/main.cpp -o CMakeFiles/ex33.dir/main.cpp.s
 
 CMakeFiles/ex33.dir/commandPattern.cpp.o: CMakeFiles/ex33.dir/flags.make
 CMakeFiles/ex33.dir/commandPattern.cpp.o: ../commandPattern.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/shachar/Documents/GitHub/ex3/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/ex33.dir/commandPattern.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ex33.dir/commandPattern.cpp.o -c /home/shachar/Documents/GitHub/ex3/commandPattern.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/yuval/Documents/GitHub/ex3/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/ex33.dir/commandPattern.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ex33.dir/commandPattern.cpp.o -c /home/yuval/Documents/GitHub/ex3/commandPattern.cpp
 
 CMakeFiles/ex33.dir/commandPattern.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/ex33.dir/commandPattern.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/shachar/Documents/GitHub/ex3/commandPattern.cpp > CMakeFiles/ex33.dir/commandPattern.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/yuval/Documents/GitHub/ex3/commandPattern.cpp > CMakeFiles/ex33.dir/commandPattern.cpp.i
 
 CMakeFiles/ex33.dir/commandPattern.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/ex33.dir/commandPattern.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/shachar/Documents/GitHub/ex3/commandPattern.cpp -o CMakeFiles/ex33.dir/commandPattern.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/yuval/Documents/GitHub/ex3/commandPattern.cpp -o CMakeFiles/ex33.dir/commandPattern.cpp.s
 
 CMakeFiles/ex33.dir/Singleton.cpp.o: CMakeFiles/ex33.dir/flags.make
 CMakeFiles/ex33.dir/Singleton.cpp.o: ../Singleton.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/shachar/Documents/GitHub/ex3/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/ex33.dir/Singleton.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ex33.dir/Singleton.cpp.o -c /home/shachar/Documents/GitHub/ex3/Singleton.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/yuval/Documents/GitHub/ex3/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/ex33.dir/Singleton.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ex33.dir/Singleton.cpp.o -c /home/yuval/Documents/GitHub/ex3/Singleton.cpp
 
 CMakeFiles/ex33.dir/Singleton.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/ex33.dir/Singleton.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/shachar/Documents/GitHub/ex3/Singleton.cpp > CMakeFiles/ex33.dir/Singleton.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/yuval/Documents/GitHub/ex3/Singleton.cpp > CMakeFiles/ex33.dir/Singleton.cpp.i
 
 CMakeFiles/ex33.dir/Singleton.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/ex33.dir/Singleton.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/shachar/Documents/GitHub/ex3/Singleton.cpp -o CMakeFiles/ex33.dir/Singleton.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/yuval/Documents/GitHub/ex3/Singleton.cpp -o CMakeFiles/ex33.dir/Singleton.cpp.s
 
 CMakeFiles/ex33.dir/Calculate.cpp.o: CMakeFiles/ex33.dir/flags.make
 CMakeFiles/ex33.dir/Calculate.cpp.o: ../Calculate.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/shachar/Documents/GitHub/ex3/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/ex33.dir/Calculate.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ex33.dir/Calculate.cpp.o -c /home/shachar/Documents/GitHub/ex3/Calculate.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/yuval/Documents/GitHub/ex3/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/ex33.dir/Calculate.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ex33.dir/Calculate.cpp.o -c /home/yuval/Documents/GitHub/ex3/Calculate.cpp
 
 CMakeFiles/ex33.dir/Calculate.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/ex33.dir/Calculate.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/shachar/Documents/GitHub/ex3/Calculate.cpp > CMakeFiles/ex33.dir/Calculate.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/yuval/Documents/GitHub/ex3/Calculate.cpp > CMakeFiles/ex33.dir/Calculate.cpp.i
 
 CMakeFiles/ex33.dir/Calculate.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/ex33.dir/Calculate.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/shachar/Documents/GitHub/ex3/Calculate.cpp -o CMakeFiles/ex33.dir/Calculate.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/yuval/Documents/GitHub/ex3/Calculate.cpp -o CMakeFiles/ex33.dir/Calculate.cpp.s
 
 CMakeFiles/ex33.dir/ObjectData.cpp.o: CMakeFiles/ex33.dir/flags.make
 CMakeFiles/ex33.dir/ObjectData.cpp.o: ../ObjectData.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/shachar/Documents/GitHub/ex3/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/ex33.dir/ObjectData.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ex33.dir/ObjectData.cpp.o -c /home/shachar/Documents/GitHub/ex3/ObjectData.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/yuval/Documents/GitHub/ex3/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/ex33.dir/ObjectData.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ex33.dir/ObjectData.cpp.o -c /home/yuval/Documents/GitHub/ex3/ObjectData.cpp
 
 CMakeFiles/ex33.dir/ObjectData.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/ex33.dir/ObjectData.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/shachar/Documents/GitHub/ex3/ObjectData.cpp > CMakeFiles/ex33.dir/ObjectData.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/yuval/Documents/GitHub/ex3/ObjectData.cpp > CMakeFiles/ex33.dir/ObjectData.cpp.i
 
 CMakeFiles/ex33.dir/ObjectData.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/ex33.dir/ObjectData.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/shachar/Documents/GitHub/ex3/ObjectData.cpp -o CMakeFiles/ex33.dir/ObjectData.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/yuval/Documents/GitHub/ex3/ObjectData.cpp -o CMakeFiles/ex33.dir/ObjectData.cpp.s
 
 # Object files for target ex33
 ex33_OBJECTS = \
@@ -140,7 +140,7 @@ ex33: CMakeFiles/ex33.dir/Calculate.cpp.o
 ex33: CMakeFiles/ex33.dir/ObjectData.cpp.o
 ex33: CMakeFiles/ex33.dir/build.make
 ex33: CMakeFiles/ex33.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/shachar/Documents/GitHub/ex3/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX executable ex33"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/yuval/Documents/GitHub/ex3/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX executable ex33"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/ex33.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -153,6 +153,6 @@ CMakeFiles/ex33.dir/clean:
 .PHONY : CMakeFiles/ex33.dir/clean
 
 CMakeFiles/ex33.dir/depend:
-	cd /home/shachar/Documents/GitHub/ex3/cmake-build-debug && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/shachar/Documents/GitHub/ex3 /home/shachar/Documents/GitHub/ex3 /home/shachar/Documents/GitHub/ex3/cmake-build-debug /home/shachar/Documents/GitHub/ex3/cmake-build-debug /home/shachar/Documents/GitHub/ex3/cmake-build-debug/CMakeFiles/ex33.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/yuval/Documents/GitHub/ex3/cmake-build-debug && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/yuval/Documents/GitHub/ex3 /home/yuval/Documents/GitHub/ex3 /home/yuval/Documents/GitHub/ex3/cmake-build-debug /home/yuval/Documents/GitHub/ex3/cmake-build-debug /home/yuval/Documents/GitHub/ex3/cmake-build-debug/CMakeFiles/ex33.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/ex33.dir/depend
 

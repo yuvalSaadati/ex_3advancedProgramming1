@@ -66,7 +66,8 @@ public:
     virtual int execute(vector<string> valString) override;
     virtual ~SleepCommand() {}
 };
-/*
+
+
 class ConditionParser : public CommandInterface{
     bool condition{};
 public:
@@ -79,7 +80,12 @@ class LoopCommand : public CommandInterface{
     bool condition;
 public:
     LoopCommand () {}
+   vector<CommandInterface> comamandVector;
+       vector<vector<string>> vectorStringCommand;
+
+    //void addCommand(CommandInterface c);
     virtual int execute(vector<string> valString);
+    bool isnumber(string s);
     virtual ~LoopCommand() {}
 };
 
@@ -90,5 +96,5 @@ public:
     virtual int execute(vector<string> valString);
     virtual ~IfCommand() {}
 };
-*/
+
 #endif //EX33_COMMANPATTERN_H

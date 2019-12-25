@@ -8,5 +8,6 @@ int main(int argc,char* argv[]) {
     s->createSimValuesMap();
     vector<string> lexerVector = s->lexer(argv[1]);
     s->parser(lexerVector);
+
     return 0;
 }

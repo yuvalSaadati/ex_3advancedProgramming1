@@ -1,309 +1,397 @@
 #include "Calculate.h"
-Value::Value(double val) : value(val) {}
-Value::~Value() {}
-double Value::calculate() {
-  return value;
+#include <map>
+#include <string>
+#include <string.h>
+#include <queue>
+#include <stack>
+#include <ctype.h>
+#include <stdlib.h>
+Variable& Variable::operator++(){
+    this->myValue = this->myValue + 1;
+    return *this;
 }
-void Value::print() {
-  cout<<value<<endl;
+Variable& Variable::operator++(int){
+    this->myValue = this->myValue + 1;
+    return *this;
 }
-Variable::Variable(string name1, double value1) {
-  name = name1;
-  value = value1;
+Variable& Variable::operator--(){
+    this->myValue = this->myValue - 1;
+    return *this;
 }
-Variable::~Variable() {}
-double Variable::calculate() {
-  return value;
+Variable& Variable::operator--(int){
+    this->myValue = this->myValue - 1;
+    return *this;
 }
-Variable &Variable::operator++() {
-  value = value + 1;
-  return *this;
+Variable& Variable::operator+=(float x){
+    this->myValue = this->myValue + x;
+    return *this;
 }
-Variable &Variable::operator--() {
-  value = value - 1;
-  return *this;
+
+Variable& Variable::operator-=(float x){
+    this->myValue = this->myValue - x;
+    return *this;
 }
-Variable &Variable::operator++(int) {
-  value = value + 1;
-  return *this;
+// return the value of the variable
+float Variable::calculate(){
+    return this->myValue;
 }
-Variable &Variable::operator--(int) {
-  value = value - 1;
-  return *this;
+
+float Plus::calculate() {
+    return this->left->calculate() + this->right->calculate();
 }
-Variable &Variable::operator+=(double val) {
-  value = value + val;
-  return *this;
+float Minus::calculate() {
+    return this->left->calculate() - this->right->calculate();
 }
-Variable &Variable::operator-=(double val) {
-  value = value - val;
-  return *this;
+float Mul::calculate() {
+    return this->left->calculate() * this->right->calculate();
 }
-void Variable::print() {
-  cout<<name<<"="<<value<<endl;
-}
-BinaryOperator::BinaryOperator(Expression *left1, Expression *right1) {
-  right = right1;
-  left = left1;
-}
-BinaryOperator::~BinaryOperator() {
-  delete(right);
-  delete(left);
-}
-Div::Div(Expression *left1, Expression *right1) : BinaryOperator(left1, right1){}
-Div::~Div() {}
-double Div::calculate() {
-  if(right->calculate() == 0) {
-    throw ("division by zero");
-  }
-  return left->calculate() / right->calculate();
-}
-void Div::print() {
-  cout<<"("<<left<<"/"<<right<<")"<<endl;
-}
-Minus::Minus(Expression *left1, Expression *right1) : BinaryOperator(left1, right1){}
-Minus::~Minus() {}
-double Minus::calculate() {
-  return right->calculate() - left->calculate();
-}
-void Minus::print() {
-  cout<<"("<<left<<"-"<<right<<")"<<endl;
-}
-Mul::Mul(Expression *left1, Expression *right1) : BinaryOperator(left1, right1){}
-Mul::~Mul() {}
-double Mul::calculate() {
-  return left->calculate() * right->calculate();
-}
-void Mul::print() {
-  cout<<"("<<left<<"*"<<right<<")"<<endl;
-}
-Plus::Plus(Expression *left1, Expression *right1) : BinaryOperator(left1, right1){}
-Plus::~Plus() {}
-double Plus::calculate() {
-  return right->calculate() + left->calculate();
-}
-void Plus::print() {
-  cout<<"("<<left<<"+"<<right<<")"<<endl;
-}
-UnaryOperator::UnaryOperator(Expression *expression1) {
-  expression = expression1;
-}
-UnaryOperator::~UnaryOperator() {
-  delete(expression);
-}
-UPlus::UPlus(Expression *expression1) : UnaryOperator(expression1) {
-  expression = expression1;
-}
-double UPlus::calculate() {
-  return expression->calculate();
-}
-void UPlus::print() {
-  cout<<"("<<expression<<")"<<endl;
-}
-UMinus::UMinus(Expression *expression1) : UnaryOperator(expression1) {
-  expression = expression1;
-}
-double UMinus::calculate() {
-  return expression->calculate() * (-1);
-}
-void UMinus::print() {
-  cout<<"-("<<expression<<")"<<endl;
-}
-ShuntingYard::ShuntingYard() {}
-void ShuntingYard::fromInfixToPostfix(string& infixString, map<string, double>& values) {
-  //check if I get ** OR //
-  if (infixString.find("**") != string::npos) {
-    throw ("illegal math expression");
-  }
-  if (infixString.find("//") != string::npos) {
-    throw ("illegal math expression");
-  }
-  if (infixString.find("--") != string::npos) {
-    throw ("illegal math expression");
-  }
-  if (infixString.find("++") != string::npos) {
-    throw ("illegal math expression");
-  }
-  for (int i = 0; (unsigned)i < infixString.size(); i++) {
-    string stringToCheck = infixString.substr(i, 1);
-    //if it's a letter
-    if (regex_match(stringToCheck, regex("^[a-zA-Z][0-9]?_?$"))) {
-      if(infixString.size() > (unsigned)i && isNumber(infixString.substr(i+1, 1))) {
-        throw ("Error");
-      }
-      if (values.find(stringToCheck) == values.end()) {
-        // not found
-        throw ("variable doesn't exist");
-      } else {
-        // found
-        double x = values[stringToCheck];
-        this->deque_.push_back(to_string(x));
-      }
+float Div::calculate() {
+    if (this->right->calculate() == 0) {
+        // cant divide a number with zero
+        throw ("division by zero");
+    } else {
+        return this->left->calculate() / this->right->calculate();
     }
-      //if it's an operator
-    else if (regex_match(stringToCheck, regex("^[-+()*\\/]$"))) {
-      if (stringToCheck == ")") {
-        while (this->stack_.top() != "(" && !this->stack_.empty()) {
-          this->deque_.push_back(this->stack_.top());
-          this->stack_.pop();
+}
+float UMinus ::calculate() {
+    return this->expr->calculate() * -1;
+}
+float UPlus ::calculate() {
+    // return the value
+    return this->expr->calculate();
+}
+Expression* Interpreter:: interpret(string expressionString) {
+    queue <string> outPutQueue;
+    stack <string> operatorStack;
+    // creating the string of the value and pushing it to the outPutQueue
+    for (unsigned i = 0; i < expressionString.length(); i++) {
+        // if the variable start with letter we will check if it is set in the map
+        if (isalpha(expressionString[i])) {
+            string valStringName;
+            //valStringName is the name of the variable that has been set
+            valStringName = valStringName + expressionString[i];
+            while (isalpha(expressionString[i+1]) || isdigit(expressionString[i+1]) || expressionString[i+1] == '_') {
+                valStringName = valStringName + expressionString[i+1];
+                i++;
+            }
+            map<string,string>::iterator it = this->variableMap.find(valStringName);
+            if(it != this->variableMap.end()) {
+                // taking the value of the variable from the map
+                string val = it->second;
+                outPutQueue.push(val);
+            } else {
+                throw ("illegal math expression");
+            }
+            continue;
         }
-        if (this->stack_.empty()) {
-          throw ("brackets error");
+
+
+        // creating negative float number
+        if (expressionString[i] == '-' && isdigit(expressionString[i+1])) {
+            string number = "-";
+            while (isdigit(expressionString[i+1]) || expressionString[i+1] == '.' ) {
+                number = number + expressionString[i+1];
+                i++;
+            }
+            if (number.compare("") != 0){
+                outPutQueue.push(number);
+                continue;
+            }
+            continue;
+        }
+
+        // creating float number
+        bool enter = false;
+        string number;
+        while (isdigit(expressionString[i]) || expressionString[i] == '.' ) {
+            number = number + expressionString[i];
+            i++;
+            enter = true;
+        }
+        if(enter) {
+            i--;
+        }
+        if (number.compare("") != 0){
+            outPutQueue.push(number);
+            continue;
+        }
+
+        // pushing - or + operator
+        if (expressionString[i] == '+' || expressionString[i] == '-' ) {
+            // "-()"
+            if (expressionString[i] == '-' && expressionString[i+1] == '(') {
+                operatorStack.push("@");
+                continue;
+            }
+            //+() only at the start of the expression
+            if(expressionString[0] == '+' && expressionString[1] == '(') {
+                operatorStack.push("%");
+                continue;
+            }
+            // (+())
+            if (expressionString[i] == '+' && expressionString[i+1] == '(' &&  expressionString[i-1] == '(' ) {
+                operatorStack.push("$");
+                continue;
+            }
+
+
+            // creating praiority order in operatorStack
+            if (!operatorStack.empty()) {
+                while (operatorStack.top() == "*" || operatorStack.top() == "/") {
+                    outPutQueue.push(operatorStack.top());
+                    operatorStack.pop();
+                }
+                string s(1, expressionString[i]);
+                operatorStack.push(s);
+            } else {
+                string s(1, expressionString[i]);
+                operatorStack.push(s);
+            }
+
+            // pushing * or / operator
+        } else if (expressionString[i] == '*' ||expressionString[i] == '/' ) {
+            string s(1, expressionString[i]);
+            operatorStack.push(s);
+        }
+            // pushing ( operator
+        else if (expressionString[i] == '(') {
+            string s(1, expressionString[i]);
+            operatorStack.push(s);
+        }
+            // erasing ( operator and pop all the operators until ) operator
+        else if (expressionString[i] == ')') {
+            while (operatorStack.top().compare("(") != 0) {
+                outPutQueue.push(operatorStack.top());
+                operatorStack.pop();
+            }
+            // pop the left bracket from the stack and discard it
+            operatorStack.pop();
+
+            if (!operatorStack.empty()) {
+                if (operatorStack.top().compare("@") == 0) {
+                    outPutQueue.push("@");
+                    operatorStack.pop();
+                    continue;
+                }
+                if (operatorStack.top().compare("$") == 0) {
+                    outPutQueue.push("$");
+                    operatorStack.pop();
+                    continue;
+
+                }
+                if (operatorStack.top().compare("#") == 0) {
+                    outPutQueue.push("#");
+                    operatorStack.pop();
+                    continue;
+
+                }
+
+            }
+
+        }
+    }
+    // pop all the operator that left
+    while (!operatorStack.empty()) {
+        outPutQueue.push(operatorStack.top());
+        operatorStack.pop();
+    }
+
+    stack <Expression*> resultStack;
+    while (!outPutQueue.empty()) {
+
+        float value = strtod(outPutQueue.front().c_str(), NULL);
+        if (outPutQueue.front().compare("0") == 0) {
+            // this is the number zero
+            resultStack.push(new Value(0));
+            outPutQueue.pop();
+            continue;
+        } else if (value != 0) {
+            // this is number that diffrent from zero
+            resultStack.push(new Value(value));
+            outPutQueue.pop();
+            continue;
+
         } else {
-          this->stack_.pop();
+            // creating the right expression
+            Expression *right = resultStack.top();
+            if (!isnumber(to_string(right->calculate()))) {
+                throw ("illegal variable assignment!");
+            }
+            resultStack.pop();
+
+            if (outPutQueue.front().compare("@") == 0) {
+                outPutQueue.pop();
+                // -()
+                resultStack.push(new UMinus(right));
+                continue;
+
+            }
+
+            if (outPutQueue.front().compare("$") == 0) {
+                outPutQueue.pop();
+                if(outPutQueue.empty()) {
+                    //+() in the start
+                    return new UPlus(right);
+                }
+                //+()
+                resultStack.push(new UPlus(right));
+                continue;
+
+            }
+            if (outPutQueue.front().compare("%") == 0) {
+                outPutQueue.pop();
+                //+()
+                return new UPlus(right);
+            }
+
+            if (resultStack.empty()) {
+                throw ("too many operators!");
+            }
+            Expression *left = resultStack.top();
+            if (!isnumber(to_string(left->calculate()))) {
+                throw ("illegal variable assignment!");
+            }
+            resultStack.pop();
+
+
+            if (outPutQueue.front().compare("+") == 0) {
+                outPutQueue.pop();
+                resultStack.push(new Plus(left, right));
+                continue;
+
+            } else if (outPutQueue.front().compare("-")== 0) {
+                outPutQueue.pop();
+                resultStack.push(new Minus(left, right));
+                continue;
+
+            } else if (outPutQueue.front().compare("*")== 0) {
+                outPutQueue.pop();
+                resultStack.push(new Mul(left, right));
+
+                continue;
+            } else if (outPutQueue.front().compare("/")== 0) {
+                if (right->calculate() == 0.0) {
+                    throw ("division by zero");
+                } else {
+                    outPutQueue.pop();
+                    resultStack.push(new Div(left, right));
+                    continue;
+                }
+            }
         }
-        //if it's a Unary operators
-      } else if (stringToCheck == "+" || stringToCheck == "-") {
-        string lastToken(1, infixString[i - 1]);
-        if (stringToCheck == "+") {
-          if (i == 0 || lastToken == "(") {
-            this->stack_.push("@");
-          }
-          else {
-            this->stack_.push("+");
-          }
+
+    }
+    if(resultStack.size() == 1) {
+        return resultStack.top();
+    } else if (resultStack.size() > 1) {
+        // pop all the expression that left
+        while (resultStack.size() != 1) {
+            Expression *r = resultStack.top();
+            resultStack.pop();
+            Expression *l = resultStack.top();
+            resultStack.pop();
+            resultStack.push(new Plus(l, r));
         }
-        if (stringToCheck == "-") {
-          if (i == 0 || lastToken == "(") {
-            this->stack_.push("#");
-          }
-          else {
-            this->stack_.push("-");
-          }
+    }
+    return resultStack.top();
+}
+
+// the methos check if the string is a number
+bool  Interpreter :: isnumber(string s) {
+    int stringLength = s.length();
+    char* sArray = new char[stringLength + 1];
+    strcpy(sArray, s.c_str());
+    bool flag = false;
+    if (s.length() == 1 && isdigit(s.at(0))) {
+        return true;
+    }
+    for (unsigned i=1; i<s.length();i++)
+    {
+        if (isdigit(s[i])) {
+            flag = true;
+        } else if ((s.length() > 2 && s[i]=='.' && isdigit(s[i-1]) && isdigit(s[i+1]))) {
+            flag = true;
+        } else {
+            return false;
         }
-      } else { //for all other operators
-        this->stack_.push(stringToCheck);
-      }
     }
-      //if it's a number
-    else {
-      string token = stringToCheck;
-      int flag = 0;
-      int chars = 1;
-      while (isNumber(stringToCheck) && (unsigned)(i + chars) < infixString.length()) {
-        flag = 1;
-        token = stringToCheck;
-        stringToCheck = infixString.substr(i, ++chars);
-      }
-      this->deque_.push_back(token);
-      if (flag == 1) {
-        i = i + chars - 2;
-      }
-    }
-  }
-  //clear the stack
-  while (!this->stack_.empty() && this->stack_.top() != "(") {
-    this->deque_.push_back(this->stack_.top());
-    this->stack_.pop();
-  }
-  if (!this->stack_.empty() && this->stack_.top() == "(") {
-    throw("brackets error");
-  }
+    return flag;
 }
-deque<string> ShuntingYard::getPostfix() {
-  return this->deque_;
-}
-bool ShuntingYard::isNumber(string str) {
-  return regex_match(str, regex("^[-+]?[0-9]+\\.?[0-9]*$"));
-}
-void Interpreter::setVariables(string str) {
-  string commaDelimiter = ";";
-  size_t commaPos = 0;
-  string token;
-  while ((commaPos = str.find(commaDelimiter)) != string::npos) {
-    token = str.substr(0, commaPos);
-    setVariablesHelper(token);
-    str.erase(0, commaPos + commaDelimiter.length());
-  }
-  setVariablesHelper(str);
-}
-void Interpreter::setVariablesHelper(string str) {
-  regex matchLetter("^[a-zA-Z][0-9]?[_]?[0-9]?$");
-  regex matchNumber("^[-+]?[0-9]+\\.?[0-9]*$");
-  string equalDelimiter = "=";
-  size_t equalPos = 0;
-  string beforeEqual, afterEqual;
-  if ((equalPos = str.find(equalDelimiter)) != string::npos) {
-    afterEqual = str.substr(str.find(equalDelimiter) + 1);
-    beforeEqual = str.substr(0, equalPos);
-    if (!regex_match(afterEqual, matchNumber)) {
-      throw ("illegal variable assignment!");
+
+// set the variable in map
+void Interpreter :: setVariables(string variables) {
+    size_t pos = 0;
+    while ((pos = variables.find(";")) != std::string::npos) {
+        string token;
+        string valName; //the variable name
+        string valValueString; // the value
+        token = variables.substr(0, pos); //take the part x=2
+        variables.erase(0, pos + 1);
+        unsigned tokenLength = token.length();
+        char* tokenArray = new char[tokenLength +1];
+        strcpy(tokenArray, token.c_str());
+        int lenghtValString = 1;
+        if (isalpha(tokenArray[0])) {
+
+            valName = valName + tokenArray[0];
+            while (tokenArray[lenghtValString] != '=') {
+                //creating the variable name
+                if (isdigit(tokenArray[lenghtValString]) || isalpha(tokenArray[lenghtValString]) ||
+                    tokenArray[lenghtValString] == '_') {
+                    valName = valName + tokenArray[lenghtValString];
+                    lenghtValString++;
+                } else {
+                    throw ("illegal variable assignment!");
+                }
+            }
+            for (unsigned i = lenghtValString + 1; i < tokenLength; i++) {
+                //creating the value
+                valValueString = valValueString + tokenArray[i];
+            }
+
+            if (isnumber(valValueString)) {
+                this->variableMap[valName] = valValueString;
+                continue;
+            } else {
+                throw ("illegal variable assignment!");
+            }
+        } else {
+            throw ("the value dosnt start with letter");
+        }
     }
-    if (!regex_match(beforeEqual, matchLetter)) {
-      throw ("illegal variable assignment!");
+    // puting the last value into map
+    if (isalpha(variables.at(0))) {
+        string valName;
+        string valValueString;
+
+        unsigned variablesLength = variables.length();
+        char* variablesArray = new char[variablesLength +1];
+        strcpy(variablesArray, variables.c_str());
+        int lenghtValString = 1;
+
+        valName = valName + variables[0];
+        while (variablesArray[lenghtValString] != '=') {
+            if (isdigit(variablesArray[lenghtValString]) || isalpha(variablesArray[lenghtValString]) ||
+                variablesArray[lenghtValString] == '_') {
+                valName = valName + variablesArray[lenghtValString];
+                lenghtValString++;
+            } else {
+                throw ("invalid value name");
+            }
+
+        }
+        for (unsigned i = lenghtValString + 1; i < variablesLength; i++) {
+            valValueString = valValueString + variablesArray[i];
+        }
+        float valueDouble = strtod(valValueString.c_str(), NULL);
+        if (valueDouble == 0 && valValueString.compare("0") == 0) {
+            this->variableMap[valName] = "0";
+        } else if (valueDouble != 0) {
+            this->variableMap[valName] = valValueString;
+        } else {
+            throw ("the value of the variable isnt double number");
+        }
+    } else {
+        throw ("the value name is illegal");
     }
-    if (this->values.find(beforeEqual) != this->values.end()) {
-      this->values.find(beforeEqual)->second = fromStringToDouble(afterEqual);
-    }
-    else {
-      this->values.insert(pair<string, double>(beforeEqual, atof(afterEqual.c_str())));
-    }
-  }
-}
-Expression* Interpreter::interpret(string str) {
-  sh.fromInfixToPostfix(str, this->values);
-  deque<string> deque = sh.getPostfix();
-  calculateExpression(deque);
-  return this->result;
-}
-void Interpreter::calculateExpression(deque<string>& deque) {
-  regex machNumber("^[-+]?[0-9]+\\.?[0-9]*$");
-  stack<double> stackCalculate;
-  while (!deque.empty()) {
-    //if its a number
-    if (regex_match(deque.front(), machNumber)) {
-      stackCalculate.push(fromStringToDouble(deque.front()));
-    }
-      // if its a unary operator
-    else if(deque.front() == "#") {
-      Expression* e = new UMinus(new Value(stackCalculate.top()));
-      stackCalculate.pop();
-      stackCalculate.push(e->calculate());
-    }
-    else if(deque.front() == "@") {
-      Expression* e = new UPlus(new Value(stackCalculate.top()));
-      stackCalculate.pop();
-      stackCalculate.push(e->calculate());
-    }
-      // if its a binary operator
-    else if (deque.front() == "*") {
-      double operand_1 = stackCalculate.top();
-      stackCalculate.pop();
-      double operand_2 = stackCalculate.top();
-      stackCalculate.pop();
-      Expression* e = new Mul(new Value(operand_1), new Value(operand_2));
-      stackCalculate.push(e->calculate());
-    }
-    else if (deque.front() == "+") {
-      double operand_1 = stackCalculate.top();
-      stackCalculate.pop();
-      double operand_2 = stackCalculate.top();
-      stackCalculate.pop();
-      Expression* e = new Plus(new Value(operand_1), new Value(operand_2));
-      stackCalculate.push(e->calculate());
-    }
-    else if (deque.front() == "-") {
-      double operand_1 = stackCalculate.top();
-      stackCalculate.pop();
-      double operand_2 = stackCalculate.top();
-      stackCalculate.pop();
-      Expression* e = new Minus(new Value(operand_1), new Value(operand_2));
-      stackCalculate.push(e->calculate());
-    }
-    else if (deque.front() == "/") {
-      double operand_1 = stackCalculate.top();
-      stackCalculate.pop();
-      double operand_2 = stackCalculate.top();
-      stackCalculate.pop();
-      Expression* e = new Div(new Value(operand_1), new Value(operand_2));
-      stackCalculate.push(e->calculate());
-    }
-    deque.erase(deque.begin());
-  }
-  this->result = new Value(stackCalculate.top());
-}
-double Interpreter::fromStringToDouble(string &string1) {
-  string::size_type sz;
-  double num = stod (string1,&sz);
-  return num;
 }
