@@ -12,6 +12,7 @@ public:
     string getSim();
     void setValue(float val);
     float getValue();
+    int getInOut();
     ~ObjectData();
 };
 #endif //EX33__OBJECTDATA_H_

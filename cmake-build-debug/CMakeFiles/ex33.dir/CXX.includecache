@@ -60,6 +60,20 @@ CommandInterface.h
 ObjectData.h
 /home/yuval/Documents/GitHub/ex3/ObjectData.h
 
+/home/yuval/Documents/GitHub/ex3/commandPattern.cpp
+string
+-
+vector
+-
+commandPattern.h
+/home/yuval/Documents/GitHub/ex3/commandPattern.h
+iostream
+-
+ctype.h
+-
+stdlib.h
+-
+
 /home/yuval/Documents/GitHub/ex3/commandPattern.h
 iostream
 -
@@ -87,14 +101,4 @@ Calculate.h
 /home/yuval/Documents/GitHub/ex3/Calculate.h
 mutex
 -
-
-/home/yuval/Documents/GitHub/ex3/main.cpp
-string
--
-CommandInterface.h
-/home/yuval/Documents/GitHub/ex3/CommandInterface.h
-commandPattern.h
-/home/yuval/Documents/GitHub/ex3/commandPattern.h
-Singleton.h
-/home/yuval/Documents/GitHub/ex3/Singleton.h
 

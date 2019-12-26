@@ -49,17 +49,20 @@ vector<string> Singleton::lexer(string s){
             strcpy(lineCharArray, s.c_str());
             char * token;
             // split the line char array by ( ) and space
-            token = strtok (lineCharArray,"( ),\"");
+            token = strtok (lineCharArray,"( ),\"\t");
             int i = 0;
             while (token != NULL)
             {
                 i+=strlen(token);
                 if(strcmp(token, "Print")==0){
                     lexerVector.push_back(token);
-                    myLine=myLine.substr(myLine.find_first_of("(\t")+1);
+                   // myLine=myLine.substr(myLine.find_first_of("(")+1);
                     // create the line print withput"()
+                    myLine.erase(std::remove(myLine.begin(), myLine.end(), '\t'), myLine.end());
+                    myLine.erase(0, 6);
                     myLine.erase(std::remove(myLine.begin(), myLine.end(), ')'), myLine.end());
                     myLine.erase(std::remove(myLine.begin(), myLine.end(), '\"'), myLine.end());
+
                     lexerVector.push_back(myLine);
                     token = NULL;
                 }else if(strcmp(token, "=")==0){
@@ -71,13 +74,13 @@ vector<string> Singleton::lexer(string s){
                         val+=str;
                         token = strtok(NULL, "() ,\"");
                     }
-                   // myLine.erase(0, i+2);
+                    // myLine.erase(0, i+2);
                     lexerVector.push_back(val);
                 }else {
                     // insert the token into the lexer (vector)
                     lexerVector.push_back(token);
                     // the next token in the line
-                    token = strtok(NULL, "() ,\"");
+                    token = strtok(NULL, "() ,\"\t");
                 }
             }
         }
@@ -103,6 +106,7 @@ void Singleton:: parser(vector<string> lexerVector) {
                     valString.push_back(lexerVector[i]);
                     i++;
                 }
+
             } else if(lexerVector[i].compare("openDataServer")==0) {
                 printf("openDataServer\n");//delete later
                 valString.push_back(lexerVector[i+1]);
@@ -199,19 +203,19 @@ float Singleton::calculateExpression(string s){
             continue;
         }
         while ((isalpha(arrayExpression[i]) || isdigit(arrayExpression[i]) || arrayExpression[i] == '_')&&createVal) {
-                varibalName += arrayExpression[i];
-                i++;
+            varibalName += arrayExpression[i];
+            i++;
         }
-      if(createVal) {
-          // the word ended, so we will find the value of val
-          varibalName += "=" + to_string(Singleton().getInstance()->symbolTable.find(varibalName)->second->getValue());
-          // insert each val into the setVaribles
-          interpreter->setVariables(varibalName);
-          // clean the string in order to insert her new var
-          createVal=false;
-          startWord  = true;
-          varibalName.erase();
-      }
+        if(createVal) {
+            // the word ended, so we will find the value of val
+            varibalName += "=" + to_string(Singleton().getInstance()->symbolTable.find(varibalName)->second->getValue());
+            // insert each val into the setVaribles
+            interpreter->setVariables(varibalName);
+            // clean the string in order to insert her new var
+            createVal=false;
+            startWord  = true;
+            varibalName.erase();
+        }
     }
     try{
         e = interpreter->interpret(s);

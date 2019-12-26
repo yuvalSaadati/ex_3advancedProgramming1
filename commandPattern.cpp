@@ -15,6 +15,7 @@ int OpenServerCommand::execute(vector<string> valString){
     }
     return 1;
 }
+
 int OpenServerCommand::openServer(){
     int socketfd = socket(AF_INET, SOCK_STREAM, 0);
     if (socketfd == -1) {
@@ -40,47 +41,17 @@ int OpenServerCommand::openServer(){
         std::cerr<<"Error accepting client"<<std::endl;
         return -4;
     }
-    is_done = true;
     close(socketfd);
+    is_done = true;
     char buffer[1024] = {0};
-    while(read( client_socket , buffer, 1024))
-    {
-        std::cout<<buffer<<std::endl;
+    while(true){
+        int valread = read( client_socket , buffer, 1024);
+        cout<<buffer<<std::endl;
+        simDataParser(buffer);
+        char *hello = "Hello, I can hear you! \n";
+        send(client_socket , hello , strlen(hello) , 0);
+      //  std::cout<<"Hello message sent\n"<<std::endl;
     }
-    //int valread = read( client_socket , buffer, 1024);
-    //std::cout<<buffer<<std::endl;
-    simDataParser(buffer);
-    /*for(int j = 0; j < 36; j++){
-      printf("our print: %f, ",this->simValues[j]);
-    }*/
-    char *hello = "Hello, I can hear you! \n";
-    send(client_socket , hello , strlen(hello) , 0);
-    std::cout<<"Hello message sent\n"<<std::endl;
-    return 0;
-}
-void OpenServerCommand::simDataParser(char * buffer) {
-    int i = 0;
-    char * token;
-    token = strtok (buffer,",");
-    while(token != NULL)
-    {
-        this->simValues[i] = stof(token);
-        token = strtok (NULL, ",");
-        i++;
-    }
-}
-int ConnectCommand::execute(vector<string> valString){
-    //is_done = false;
-
-    ip = valString[0];
-    port = stoi(valString[1]);
-    thread tc(&ConnectCommand::openClient,this);
-    tc.detach();
-    /*while(!is_done)
-    {
-      this_thread::sleep_for(chrono::microseconds(100));
-    }*/
-    return 2;
 }
 int ConnectCommand::openClient() {
     client_socket = socket(AF_INET, SOCK_STREAM, 0);
@@ -99,27 +70,58 @@ int ConnectCommand::openClient() {
     } else {
         std::cout<<"Client is now connected to server" <<std::endl;
     }
-    while (!Singleton().getInstance()->messages_from_client.empty()) {
-        mutex_lock.lock();
-        printf("message\n");//delete later
-        int is_sent = send(client_socket,
-                           Singleton().getInstance()->messages_from_client.front().c_str(),
-                           Singleton().getInstance()->messages_from_client.size(),
-                           0);
-        if (is_sent == -1) {
-            std::cout << "Error sending message" << std::endl;
-        } else {
+    while(true){
+        if (!Singleton().getInstance()->messages_from_client.empty()) {
+            mutex_lock.lock();
+            int is_sent = send(client_socket,
+                               Singleton().getInstance()->messages_from_client.front().c_str(),
+                               strlen(Singleton().getInstance()->messages_from_client.front().c_str()),
+                               0);
             Singleton().getInstance()->messages_from_client.pop();
-            std::cout << "Hello message sent to server" << std::endl;
+            mutex_lock.unlock();
+            if (is_sent == -1) {
+                std::cout<<"Error sending message"<<std::endl;
+            } else {
+            //    std::cout<<Singleton().getInstance()->messages_from_client.front()<<std::endl;
+           //     std::cout<<"Hello message sent to server" <<std::endl;
+            }
         }
-        mutex_lock.unlock();
+        else {
+            this_thread::sleep_for(chrono::microseconds(10));
+        }
     }
-    char buffer[1024] = {0};
-    int valread = read(client_socket, buffer, 1024);
-    std::cout << buffer << std::endl;
-    close(client_socket);
-    return 0;
 }
+void OpenServerCommand::simDataParser(char * buffer) {
+    int i = 0;
+    char * token;
+    token = strtok (buffer,",");
+    while(token != NULL)
+    {
+        this->simValues[i] = stof(token);
+        for(auto it =  Singleton().getInstance()->symbolTable.cbegin(); it !=  Singleton().getInstance()->symbolTable.cend(); ++it)
+        {
+            if(it->second->getSim().compare(Singleton().getInstance()->valuesFromSim[i]) == 0 && it->second->getInOut() == 0){
+                it->second->setValue(stof(token));
+            }
+        }
+        token = strtok (NULL, ",");
+        i++;
+    }
+}
+int ConnectCommand::execute(vector<string> valString){
+    //is_done = false;
+
+    ip = valString[0];
+    port = stoi(valString[1]);
+    thread tc(&ConnectCommand::openClient,this);
+    tc.detach();
+    /*while(!is_done)
+    {
+      this_thread::sleep_for(chrono::microseconds(100));
+    }*/
+    return 2;
+}
+
 DefineVarCommand::DefineVarCommand(string simDirectories[]){
     for(int i= 0; i < 36; i++){
         this->simDirectoris[i] = simDirectories[i];
@@ -135,11 +137,12 @@ int DefineVarCommand::execute(vector<string> valString){
         else if(valString[1].compare("<-")==0){
             //mutex_lock.lock();
             ObjectData *objectData = new ObjectData(0, valString[2],0);
-            for(int i = 0, flag = 0; i < 36 && flag == 0; i++){
-                if(this->simDirectoris[i] == objectData->getSim()){
+
+            for(int i = 0; i < 36; i++){
+                if(Singleton().getInstance()->valuesFromSim[i].compare(objectData->getSim())==0){
                     objectData->setValue(this->simValues[i]);
-                    flag = 1;
-                    cout<<objectData->sim << " = " << objectData->value << endl;
+                 //  cout<<objectData->sim << " = " << objectData->value << endl;
+                    break;
                 }
             }
             Singleton().getInstance()->symbolTable[valString[0]] = objectData;
@@ -168,7 +171,14 @@ int EqualCommand::execute(vector<string> valString) {
 }
 int PrintCommand::execute(vector<string> valString){
     string outPutString = valString[0];
-    cout << outPutString << endl;
+    string firstWord = outPutString.substr(0, outPutString.find(" "));
+    map<string,ObjectData*>::iterator it= Singleton().getInstance()->symbolTable.find(firstWord);
+    if (it != Singleton().getInstance()->symbolTable.end()) {
+        float f = Singleton().getInstance()->calculateExpression(outPutString);
+        cout << f << endl;
+    } else {
+        cout << outPutString << endl;
+    }
     return 1;
 }
 int SleepCommand::execute(vector<string> valString){
@@ -182,8 +192,8 @@ int ConditionParser::execute(vector<string> valString){
 }
 
 int LoopCommand::execute(vector<string> valString){
-  //  for (auto i = valString.begin(); i != valString.end(); ++i)
-     //   cout << *i << " ";
+    //  for (auto i = valString.begin(); i != valString.end(); ++i)
+    //   cout << *i << " ";
     // creating leftWhile, operatorWhile, rightWhile all in each string
     string leftWhile="";
     string rightWhile="";
@@ -192,87 +202,87 @@ int LoopCommand::execute(vector<string> valString){
     int k, i, j;
     for (k = 0; k < valString.size(); k++) {
 
-if(!finish) {
-    if (valString[k].compare("<") == 0) {
-        operatorWhile = "<";
-        for ( i = 1; i < k; i++) {
-            leftWhile += valString[i];
-        }
-        for ( j = k + 1; j < valString.size(); j++) {
-            rightWhile += valString[j];
-            if (valString[j].compare("{")) {
+        if(!finish) {
+            if (valString[k].compare("<") == 0) {
+                operatorWhile = "<";
+                for ( i = 1; i < k; i++) {
+                    leftWhile += valString[i];
+                }
+                for ( j = k + 1; j < valString.size(); j++) {
+                    rightWhile += valString[j];
+                    if (valString[j].compare("{")) {
+                        break;
+                    }
+                }
+                finish = true;
+                break;
+            } else if (valString[k].compare(">") == 0) {
+                operatorWhile = ">";
+                for ( i = 1; i < k; i++) {
+                    leftWhile += valString[i];
+                }
+                for ( j = k + 1; j < valString.size(); j++) {
+                    rightWhile += valString[j];
+                    if (valString[j].compare("{")) {
+                        break;
+                    }
+                }
+                finish = true;
+                break;
+            } else if (valString[k].compare("<=") == 0) {
+                operatorWhile = "<=";
+                for ( i = 1; i < k; i++) {
+                    leftWhile += valString[i];
+                }
+                for ( j = k + 1; j < valString.size(); j++) {
+                    rightWhile += valString[j];
+                    if (valString[j].compare("{")) {
+                        break;
+                    }
+                }
+                finish = true;
+                break;
+            } else if (valString[k].compare(">=") == 0) {
+                operatorWhile = ">=";
+                for ( i = 1; i < k; i++) {
+                    leftWhile += valString[i];
+                }
+                for ( j = k + 1; j < valString.size(); j++) {
+                    rightWhile += valString[j];
+                    if (valString[j].compare("{")) {
+                        break;
+                    }
+                }
+                finish = true;
+                break;
+            } else if (valString[k].compare("==") == 0) {
+                operatorWhile = "==";
+                for ( i = 1; i < k; i++) {
+                    leftWhile += valString[i];
+                }
+                for ( j = k + 1; j < valString.size(); j++) {
+                    rightWhile += valString[j];
+                    if (valString[j].compare("{")) {
+                        break;
+                    }
+                }
+                finish = true;
+                break;
+            } else if (valString[k].compare("!=") == 0) {
+                operatorWhile = "!=";
+                for ( i = 1; i < k; i++) {
+                    leftWhile += valString[i];
+                }
+                for ( j = k + 1; j < valString.size(); j++) {
+                    rightWhile += valString[j];
+                    if (valString[j].compare("{")) {
+                        break;
+                    }
+                }
+                finish = true;
                 break;
             }
         }
-        finish = true;
-        break;
-    } else if (valString[k].compare(">") == 0) {
-        operatorWhile = ">";
-        for ( i = 1; i < k; i++) {
-            leftWhile += valString[i];
-        }
-        for ( j = k + 1; j < valString.size(); j++) {
-            rightWhile += valString[j];
-            if (valString[j].compare("{")) {
-                break;
-            }
-        }
-        finish = true;
-        break;
-    } else if (valString[k].compare("<=") == 0) {
-        operatorWhile = "<=";
-        for ( i = 1; i < k; i++) {
-            leftWhile += valString[i];
-        }
-        for ( j = k + 1; j < valString.size(); j++) {
-            rightWhile += valString[j];
-            if (valString[j].compare("{")) {
-                break;
-            }
-        }
-        finish = true;
-        break;
-    } else if (valString[k].compare(">=") == 0) {
-        operatorWhile = ">=";
-        for ( i = 1; i < k; i++) {
-            leftWhile += valString[i];
-        }
-        for ( j = k + 1; j < valString.size(); j++) {
-            rightWhile += valString[j];
-            if (valString[j].compare("{")) {
-                break;
-            }
-        }
-        finish = true;
-        break;
-    } else if (valString[k].compare("==") == 0) {
-        operatorWhile = "==";
-        for ( i = 1; i < k; i++) {
-            leftWhile += valString[i];
-        }
-        for ( j = k + 1; j < valString.size(); j++) {
-            rightWhile += valString[j];
-            if (valString[j].compare("{")) {
-                break;
-            }
-        }
-        finish = true;
-        break;
-    } else if (valString[k].compare("!=") == 0) {
-        operatorWhile = "!=";
-        for ( i = 1; i < k; i++) {
-            leftWhile += valString[i];
-        }
-        for ( j = k + 1; j < valString.size(); j++) {
-            rightWhile += valString[j];
-            if (valString[j].compare("{")) {
-                break;
-            }
-        }
-        finish = true;
-        break;
-    }
-}
     }
     float valLeft = Singleton().getInstance()->calculateExpression(leftWhile);
     float valRight = Singleton().getInstance()->calculateExpression(rightWhile);
@@ -285,37 +295,52 @@ if(!finish) {
     }
     if(operatorWhile.compare("<")==0) {
         while (valLeft < valRight) {
+            //mutex_lock.lock();
             Singleton().getInstance()->parser(copy);
-             valLeft = Singleton().getInstance()->calculateExpression(leftWhile);
-             valRight = Singleton().getInstance()->calculateExpression(rightWhile);
+            valLeft = Singleton().getInstance()->calculateExpression(leftWhile);
+            valRight = Singleton().getInstance()->calculateExpression(rightWhile);
+            // mutex_lock.unlock();
         }
     } else if(operatorWhile.compare(">")==0) {
         while (valLeft > valRight) {
+         //   mutex_lock.lock();
             Singleton().getInstance()->parser(copy);
             valLeft = Singleton().getInstance()->calculateExpression(leftWhile);
-            valRight = Singleton().getInstance()->calculateExpression(rightWhile);        }
+            valRight = Singleton().getInstance()->calculateExpression(rightWhile);
+          //  mutex_lock.unlock();
+        }
     } else if(operatorWhile.compare("<=")==0) {
         while (valLeft <= valRight) {
+         //   mutex_lock.lock();
             Singleton().getInstance()->parser(copy);
             valLeft = Singleton().getInstance()->calculateExpression(leftWhile);
-            valRight = Singleton().getInstance()->calculateExpression(rightWhile);        }
+            valRight = Singleton().getInstance()->calculateExpression(rightWhile);
+         //   mutex_lock.unlock();
+        }
     } else if (operatorWhile.compare(">=")==0) {
         while (valLeft >= valRight) {
+          //  mutex_lock.lock();
             Singleton().getInstance()->parser(copy);
             valLeft = Singleton().getInstance()->calculateExpression(leftWhile);
-            valRight = Singleton().getInstance()->calculateExpression(rightWhile);        }
+            valRight = Singleton().getInstance()->calculateExpression(rightWhile);
+           // mutex_lock.unlock();
+        }
     } else if (operatorWhile.compare("==")==0) {
         while (valLeft == valRight) {
+           // mutex_lock.lock();
             Singleton().getInstance()->parser(copy);
             valLeft = Singleton().getInstance()->calculateExpression(leftWhile);
-            valRight = Singleton().getInstance()->calculateExpression(rightWhile);        }
+            valRight = Singleton().getInstance()->calculateExpression(rightWhile);
+            mutex_lock.unlock();}
     } else if(operatorWhile.compare("!=")==0) {
         while (valLeft != valRight) {
+            mutex_lock.lock();
             Singleton().getInstance()->parser(copy);
             valLeft = Singleton().getInstance()->calculateExpression(leftWhile);
-            valRight = Singleton().getInstance()->calculateExpression(rightWhile);        }
+            valRight = Singleton().getInstance()->calculateExpression(rightWhile);
+         //   mutex_lock.unlock();
+        }
     }
-
     return valString.size();
 }
 

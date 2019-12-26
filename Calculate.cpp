@@ -384,7 +384,7 @@ void Interpreter :: setVariables(string variables) {
             valValueString = valValueString + variablesArray[i];
         }
         float valueDouble = strtod(valValueString.c_str(), NULL);
-        if (valueDouble == 0 && valValueString.compare("0") == 0) {
+        if ((valueDouble == 0 && valValueString.compare("0") == 0 )|| valValueString.compare("0.000000") == 0||valValueString.compare("-0.000000") == 0) {
             this->variableMap[valName] = "0";
         } else if (valueDouble != 0) {
             this->variableMap[valName] = valValueString;

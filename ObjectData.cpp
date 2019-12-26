@@ -13,3 +13,6 @@ void ObjectData::setValue(float val) {
 float ObjectData::getValue() {
     return this->value;
 }
+int ObjectData::getInOut() {
+    return this->inOut;
+}

@@ -81,9 +81,7 @@ class LoopCommand : public CommandInterface{
 public:
     LoopCommand () {}
    vector<CommandInterface> comamandVector;
-       vector<vector<string>> vectorStringCommand;
-
-    //void addCommand(CommandInterface c);
+    vector<vector<string>> vectorStringCommand;
     virtual int execute(vector<string> valString);
     bool isnumber(string s);
     virtual ~LoopCommand() {}
