@@ -6,31 +6,35 @@
 #include <unistd.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <regex>
 #include "CommandInterface.h"
 #include "Singleton.h"
 #include "Expression.h"
 #include "Calculate.h"
 #include <mutex>
-
 using namespace std;
 #ifndef EX33_COMMANPATTERN_H
 #define EX33_COMMANPATTERN_H
 static bool is_done = false;
-//static bool getInfo = true;
-
 class commandPattern {};
-
+/*
+ * class that open server which will conact to the simulator
+ */
 class OpenServerCommand : public CommandInterface{
    int client_socket;
    int port;
+   string leftVals = "";
 public:
+    bool isFloatnumber(char *token);
     int openServer();
     void simDataParser(char buffer[]);
     virtual int execute(vector<string> valString);
         int readFromSim();
-virtual ~OpenServerCommand() {}
+    virtual ~OpenServerCommand(){}
 };
-
+/*
+ * class that connect the client to server
+ */
 class ConnectCommand : public CommandInterface{
   int client_socket;
   string ip;
@@ -38,61 +42,64 @@ class ConnectCommand : public CommandInterface{
 public:
     int openClient();
     int execute(vector<string> valString) override;
-    virtual ~ConnectCommand() {}
+    virtual ~ConnectCommand(){}
 };
-
+/*
+ * the class create new variables and put them in symbol table
+ */
 class DefineVarCommand : public CommandInterface{
     string name;
     string simDirectoris[36];
  public:
     DefineVarCommand(string simDirectoris[]);
     virtual int execute(vector<string> valString) override;
-    virtual ~DefineVarCommand() {}
+    virtual ~DefineVarCommand(){}
 };
+/*
+ * the class handle with variable that will be update with diffrent value
+ */
 class EqualCommand : public CommandInterface {
  public:
   int execute(vector<string> valString) override;
   virtual ~EqualCommand(){}
 };
+/*
+ * print to the screen a string or expression
+ */
 class PrintCommand : public CommandInterface {
 public:
     int execute(vector<string> valString) override;
-    virtual ~PrintCommand() {}
+    virtual ~PrintCommand(){}
 };
-
+/*
+ * the thread that run this function will sleep
+ */
 class SleepCommand : public CommandInterface{
 public:
-    //SleepCommand () {}
     virtual int execute(vector<string> valString) override;
-    virtual ~SleepCommand() {}
+    virtual ~SleepCommand(){}
 };
-
-
-class ConditionParser : public CommandInterface{
-    bool condition{};
-public:
-    ConditionParser () {}
-    virtual int execute(vector<string> valString);
-    virtual ~ConditionParser() {}
-};
-
+/*
+ * run while loop
+ */
 class LoopCommand : public CommandInterface{
+    float rpm_to_check = 0;
     bool condition;
 public:
-    LoopCommand () {}
-   vector<CommandInterface> comamandVector;
+    vector<CommandInterface> comamandVector;
     vector<vector<string>> vectorStringCommand;
     virtual int execute(vector<string> valString);
     bool isnumber(string s);
-    virtual ~LoopCommand() {}
+    virtual ~LoopCommand(){}
 };
-
+/*
+ * run if condition
+ */
 class IfCommand : public CommandInterface{
     bool condition{};
 public:
-    IfCommand () {}
     virtual int execute(vector<string> valString);
-    virtual ~IfCommand() {}
+    virtual ~IfCommand(){}
 };
 
 #endif //EX33_COMMANPATTERN_H

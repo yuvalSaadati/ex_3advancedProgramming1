@@ -6,6 +6,24 @@
 
 #IncludeRegexTransform: 
 
+/home/yuval/Documents/GitHub/ex3/Calculate.cpp
+Calculate.h
+/home/yuval/Documents/GitHub/ex3/Calculate.h
+map
+-
+string
+-
+string.h
+-
+queue
+-
+stack
+-
+ctype.h
+-
+stdlib.h
+-
+
 /home/yuval/Documents/GitHub/ex3/Calculate.h
 iostream
 -
@@ -32,11 +50,19 @@ Expression.h
 
 /home/yuval/Documents/GitHub/ex3/Expression.h
 
+/home/yuval/Documents/GitHub/ex3/ObjectData.cpp
+ObjectData.h
+/home/yuval/Documents/GitHub/ex3/ObjectData.h
+
 /home/yuval/Documents/GitHub/ex3/ObjectData.h
 iostream
 -
 string
 -
+
+/home/yuval/Documents/GitHub/ex3/Singleton.cpp
+Singleton.h
+/home/yuval/Documents/GitHub/ex3/Singleton.h
 
 /home/yuval/Documents/GitHub/ex3/Singleton.h
 iostream
@@ -54,6 +80,8 @@ Singleton.h
 map
 -
 queue
+-
+regex
 -
 CommandInterface.h
 /home/yuval/Documents/GitHub/ex3/CommandInterface.h
@@ -91,6 +119,8 @@ netinet/in.h
 -
 arpa/inet.h
 -
+regex
+-
 CommandInterface.h
 /home/yuval/Documents/GitHub/ex3/CommandInterface.h
 Singleton.h
@@ -101,4 +131,14 @@ Calculate.h
 /home/yuval/Documents/GitHub/ex3/Calculate.h
 mutex
 -
+
+/home/yuval/Documents/GitHub/ex3/main.cpp
+string
+-
+CommandInterface.h
+/home/yuval/Documents/GitHub/ex3/CommandInterface.h
+commandPattern.h
+/home/yuval/Documents/GitHub/ex3/commandPattern.h
+Singleton.h
+/home/yuval/Documents/GitHub/ex3/Singleton.h
 

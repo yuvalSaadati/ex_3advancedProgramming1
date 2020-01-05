@@ -1,6 +1,9 @@
 #include "Singleton.h"
 /* Null, because instance will be initialized on demand. */
 Singleton* Singleton::instance = 0;
+/*
+ * return Singleton object
+ */
 Singleton* Singleton::getInstance()
 {
     if (instance == 0)
@@ -9,10 +12,12 @@ Singleton* Singleton::getInstance()
     }
     return instance;
 }
-
+/*
+ * set in commandMAp all the command objects that can by in fly.txt
+ */
 Singleton::Singleton()
 {
-    //creating map with string and command
+    //creating map which the key is string and the value is command
     CommandInterface *openDataServer = new OpenServerCommand();
     commandMAp["openDataServer"] = openDataServer;
     CommandInterface *connectCommand = new ConnectCommand();
@@ -30,44 +35,114 @@ Singleton::Singleton()
     CommandInterface *ifCommand = new IfCommand();
     commandMAp["if"] = ifCommand;
 }
-
+/*
+ *
+ */
 vector<string> Singleton::lexer(string s){
     // vector of strings
     vector<string> lexerVector;
-    // open the file "fly_with_func.txt" which save in file ex33
+    // open the file "fly.txt" which save in file ex33
     std::ifstream flyText;
     flyText.open(s);
     if(flyText) {
         string myLine;
         // reade the file line by line
         while (getline(flyText, myLine)) {
-
-            string s = myLine.c_str();
+            string s1 = myLine.c_str();
             string val="";
-            int lineLength = s.length();
-            char lineCharArray[lineLength + 1];
-            strcpy(lineCharArray, s.c_str());
+            int lineLength = s1.length();
+            char* lineCharArray = new char[lineLength + 1];
+            strcpy(lineCharArray, s1.c_str());
             char * token;
             // split the line char array by ( ) and space
             token = strtok (lineCharArray,"( ),\"\t");
             int i = 0;
-            while (token != NULL)
-            {
+            string firstWord = myLine.substr(0, myLine.find(" "));
+            size_t pos = 0;
+            firstWord = myLine.substr(0, myLine.find("("));
+            if(firstWord.compare("openDataServer") == 0){
+                lexerVector.push_back("openDataServer");
+                myLine.erase(0, 14);
+                myLine.erase(remove(myLine.begin(), myLine.end(), '('), myLine.end());
+                myLine.erase(remove(myLine.begin(), myLine.end(), ')'), myLine.end());
+                myLine.erase(remove(myLine.begin(), myLine.end(), ' '), myLine.end());
+                lexerVector.push_back(myLine);
+                token = NULL;
+                continue;
+            }
+            string tokenConnectControlClient;
+            if (firstWord.compare("connectControlClient") == 0) {
+                lexerVector.push_back("connectControlClient");
+                myLine.erase(0, 20);
+                myLine.erase(remove(myLine.begin(), myLine.end(), '('), myLine.end());
+                myLine.erase(remove(myLine.begin(), myLine.end(), ')'), myLine.end());
+                myLine.erase(remove(myLine.begin(), myLine.end(), ' '), myLine.end());
+                if ((pos = myLine.find(",")) != string::npos) {
+                    tokenConnectControlClient = myLine.substr(0, pos);
+                    tokenConnectControlClient.erase(remove(tokenConnectControlClient.begin(), tokenConnectControlClient.end(), '\"'), tokenConnectControlClient.end());
+                    lexerVector.push_back(tokenConnectControlClient);
+                    myLine.erase(0, pos + 1);
+                    lexerVector.push_back(myLine);
+                }
+                token = NULL;
+                continue;
+            }
+            if (firstWord.compare("Sleep") == 0) {
+                lexerVector.push_back("Sleep");
+                myLine.erase(0, 6);
+                myLine.erase(myLine.length()-1, myLine.length());
+                lexerVector.push_back(myLine);
+                token = NULL;
+                continue;
+            }
+            string tokenEqual;
+            firstWord = myLine.substr(0, myLine.find(" "));
+            if(firstWord.compare("while") != 0 && firstWord.compare("if") != 0) {
+
+                if ((pos = myLine.find("=")) != string::npos) {
+                    myLine.erase(std::remove(myLine.begin(), myLine.end(), '\t'), myLine.end());
+                    if (firstWord.compare("var") == 0) {
+                        // var ho = head
+                        lexerVector.push_back("var");
+                        string valName = myLine.substr(0, pos);
+                        valName.erase(0, 4);
+                        valName.erase(std::remove(valName.begin(), valName.end(), '='), valName.end());
+                        valName.erase(std::remove(valName.begin(), valName.end(), ' '), valName.end());
+                        lexerVector.push_back(valName);
+                        lexerVector.push_back("=");
+                        myLine.erase(0, pos + 1);
+                        myLine.erase(std::remove(myLine.begin(), myLine.end(), ' '), myLine.end());
+                        lexerVector.push_back(myLine);
+                    } else {
+                        //wrap = 3400
+                        string valName = myLine.substr(0, pos);
+                        valName.erase(std::remove(valName.begin(), valName.end(), '='), valName.end());
+                        valName.erase(std::remove(valName.begin(), valName.end(), ' '), valName.end());
+                        lexerVector.push_back(valName);
+                        lexerVector.push_back("=");
+                        myLine.erase(0, pos + 1);
+                        myLine.erase(std::remove(myLine.begin(), myLine.end(), ' '), myLine.end());
+                        lexerVector.push_back(myLine);
+                    }
+                    myLine.erase();
+                    token = NULL;
+                    continue;
+                }
+            }
+            while (token != NULL){
                 i+=strlen(token);
                 if(strcmp(token, "Print")==0){
                     lexerVector.push_back(token);
-                   // myLine=myLine.substr(myLine.find_first_of("(")+1);
+                    // myLine=myLine.substr(myLine.find_first_of("(")+1);
                     // create the line print withput"()
                     myLine.erase(std::remove(myLine.begin(), myLine.end(), '\t'), myLine.end());
                     myLine.erase(0, 6);
                     myLine.erase(std::remove(myLine.begin(), myLine.end(), ')'), myLine.end());
-                    myLine.erase(std::remove(myLine.begin(), myLine.end(), '\"'), myLine.end());
-
                     lexerVector.push_back(myLine);
                     token = NULL;
                 }else if(strcmp(token, "=")==0){
                     lexerVector.push_back(token);
-                    token = strtok(NULL, "() ,\"");
+                    token = strtok(NULL, "\"");
                     while (token != NULL)
                     {
                         string str(token);
@@ -83,6 +158,7 @@ vector<string> Singleton::lexer(string s){
                     token = strtok(NULL, "() ,\"\t");
                 }
             }
+            delete[] lineCharArray;
         }
         flyText.close();
     }
@@ -90,15 +166,12 @@ vector<string> Singleton::lexer(string s){
         cout << "Error while openning the file" << endl;
         exit(1);
     }
-
     return lexerVector;
 }
 
 void Singleton:: parser(vector<string> lexerVector) {
-    bool inWhile = false;
-    int skipCountWhile = 0;
     for (int i = 0; i < lexerVector.size(); i++) {
-        map<string,CommandInterface*>::iterator it= this->commandMAp.find(lexerVector[i]);
+        map<string,CommandInterface*>::iterator it = this->commandMAp.find(lexerVector[i]);
         if (it != this->commandMAp.end()) {
             vector<string> valString;
             if(lexerVector[i].compare("while") == 0) {
@@ -106,13 +179,15 @@ void Singleton:: parser(vector<string> lexerVector) {
                     valString.push_back(lexerVector[i]);
                     i++;
                 }
-
+            } else if(lexerVector[i].compare("if") == 0){
+                while(lexerVector[i].compare("}") != 0) {
+                    valString.push_back(lexerVector[i]);
+                    i++;
+                }
             } else if(lexerVector[i].compare("openDataServer")==0) {
-                printf("openDataServer\n");//delete later
                 valString.push_back(lexerVector[i+1]);
             }
             else if(lexerVector[i].compare("connectControlClient")==0) {
-                printf("connectControlClient\n");//delete later
                 valString.push_back(lexerVector[i+1]);
                 valString.push_back(lexerVector[i+2]);
             }
@@ -136,14 +211,14 @@ void Singleton:: parser(vector<string> lexerVector) {
                 valString.push_back(lexerVector[i-1]);
                 valString.push_back(lexerVector[i+1]);
             }
-
             int skipCount = (it->second)->execute(valString);
             i+=skipCount;
         }
     }
-
 }
-
+/*
+ * update the valuesFromSim map with data from the xml file. every key in the map represent differnt variable
+ */
 void Singleton:: createSimValuesMap(){
     this->valuesFromSim[0] = "instrumentation/airspeed-indicator/indicated-speed-kt";
     this->valuesFromSim[1] = "sim/time/warp";
@@ -182,54 +257,58 @@ void Singleton:: createSimValuesMap(){
     this->valuesFromSim[34] = "controls/switches/master-alt";
     this->valuesFromSim[35] = "engines/engine/rpm";
 }
-
+/*
+ * the function get string and return the result of this expression
+ */
 float Singleton::calculateExpression(string s){
-
     Interpreter* interpreter = new Interpreter();
     Expression* e = nullptr;
     string stringExpression = s;
-    char arrayExpression[stringExpression.length()+1];
+    char *arrayExpression = new char[stringExpression.length()+1];
     strcpy(arrayExpression, stringExpression.c_str());
     // making set to all var which is in symboltable
     bool createVal = false;
     bool startWord  = true;
-    string varibalName = "";
+    string variableName = "";
+    // set all the variable
     for(int i=0; i<stringExpression.length();i++){
         if(isalpha(arrayExpression[i])&&startWord) {
             // adding letters into one word which is a name of var
-            varibalName += arrayExpression[i];
-            createVal=true;
-            startWord  = false;
+            variableName += arrayExpression[i];
+            createVal = true;
+            startWord = false;
             continue;
         }
+        // the name of variable must start with letter and contain only letters and numbers
         while ((isalpha(arrayExpression[i]) || isdigit(arrayExpression[i]) || arrayExpression[i] == '_')&&createVal) {
-            varibalName += arrayExpression[i];
+            variableName += arrayExpression[i];
             i++;
         }
         if(createVal) {
             // the word ended, so we will find the value of val
-            varibalName += "=" + to_string(Singleton().getInstance()->symbolTable.find(varibalName)->second->getValue());
-            // insert each val into the setVaribles
-            interpreter->setVariables(varibalName);
+            variableName += "=" + to_string(Singleton().getInstance()->symbolTable.find(variableName)->second->getValue());
+            // insert each val into the setVariables
+            interpreter->setVariables(variableName);
             // clean the string in order to insert her new var
             createVal=false;
             startWord  = true;
-            varibalName.erase();
+            variableName.erase();
         }
     }
     try{
         e = interpreter->interpret(s);
+        // calculate the interpreter by the s tat has given to the function
         float f= e->calculate();
         delete e;
         delete interpreter;
+        delete[] arrayExpression;
         return f;
-    } catch (const char* e) {
-        if (e != nullptr) {
-            delete e;
+    } catch (const char* e1) {
+        if (e1 != nullptr) {
+            delete e1;
         }
         if (interpreter != nullptr) {
             delete interpreter;
         }
-
     }
 }

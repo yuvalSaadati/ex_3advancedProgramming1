@@ -6,6 +6,9 @@
 #include <stack>
 #include <ctype.h>
 #include <stdlib.h>
+/*
+ * this classes from ex01 which can calculate experssion
+ * */
 Variable& Variable::operator++(){
     this->myValue = this->myValue + 1;
     return *this;
@@ -35,7 +38,6 @@ Variable& Variable::operator-=(float x){
 float Variable::calculate(){
     return this->myValue;
 }
-
 float Plus::calculate() {
     return this->left->calculate() + this->right->calculate();
 }
@@ -84,8 +86,6 @@ Expression* Interpreter:: interpret(string expressionString) {
             }
             continue;
         }
-
-
         // creating negative float number
         if (expressionString[i] == '-' && isdigit(expressionString[i+1])) {
             string number = "-";
@@ -99,7 +99,6 @@ Expression* Interpreter:: interpret(string expressionString) {
             }
             continue;
         }
-
         // creating float number
         bool enter = false;
         string number;
@@ -115,16 +114,15 @@ Expression* Interpreter:: interpret(string expressionString) {
             outPutQueue.push(number);
             continue;
         }
-
         // pushing - or + operator
         if (expressionString[i] == '+' || expressionString[i] == '-' ) {
             // "-()"
-            if (expressionString[i] == '-' && expressionString[i+1] == '(') {
+            if (expressionString[i] == '-' && (i == 0 || expressionString[i+1] == '(')) {
                 operatorStack.push("@");
                 continue;
             }
             //+() only at the start of the expression
-            if(expressionString[0] == '+' && expressionString[1] == '(') {
+            if (expressionString[0] == '+' && (i == 0 || expressionString[i+1] == '(')) {
                 operatorStack.push("%");
                 continue;
             }
@@ -133,8 +131,6 @@ Expression* Interpreter:: interpret(string expressionString) {
                 operatorStack.push("$");
                 continue;
             }
-
-
             // creating praiority order in operatorStack
             if (!operatorStack.empty()) {
                 while (operatorStack.top() == "*" || operatorStack.top() == "/") {
@@ -147,7 +143,6 @@ Expression* Interpreter:: interpret(string expressionString) {
                 string s(1, expressionString[i]);
                 operatorStack.push(s);
             }
-
             // pushing * or / operator
         } else if (expressionString[i] == '*' ||expressionString[i] == '/' ) {
             string s(1, expressionString[i]);
@@ -185,9 +180,7 @@ Expression* Interpreter:: interpret(string expressionString) {
                     continue;
 
                 }
-
             }
-
         }
     }
     // pop all the operator that left
@@ -195,10 +188,8 @@ Expression* Interpreter:: interpret(string expressionString) {
         outPutQueue.push(operatorStack.top());
         operatorStack.pop();
     }
-
     stack <Expression*> resultStack;
     while (!outPutQueue.empty()) {
-
         float value = strtod(outPutQueue.front().c_str(), NULL);
         if (outPutQueue.front().compare("0") == 0) {
             // this is the number zero
@@ -210,7 +201,6 @@ Expression* Interpreter:: interpret(string expressionString) {
             resultStack.push(new Value(value));
             outPutQueue.pop();
             continue;
-
         } else {
             // creating the right expression
             Expression *right = resultStack.top();
@@ -218,15 +208,12 @@ Expression* Interpreter:: interpret(string expressionString) {
                 throw ("illegal variable assignment!");
             }
             resultStack.pop();
-
             if (outPutQueue.front().compare("@") == 0) {
                 outPutQueue.pop();
                 // -()
                 resultStack.push(new UMinus(right));
                 continue;
-
             }
-
             if (outPutQueue.front().compare("$") == 0) {
                 outPutQueue.pop();
                 if(outPutQueue.empty()) {
@@ -236,14 +223,12 @@ Expression* Interpreter:: interpret(string expressionString) {
                 //+()
                 resultStack.push(new UPlus(right));
                 continue;
-
             }
             if (outPutQueue.front().compare("%") == 0) {
                 outPutQueue.pop();
                 //+()
                 return new UPlus(right);
             }
-
             if (resultStack.empty()) {
                 throw ("too many operators!");
             }
@@ -252,22 +237,17 @@ Expression* Interpreter:: interpret(string expressionString) {
                 throw ("illegal variable assignment!");
             }
             resultStack.pop();
-
-
             if (outPutQueue.front().compare("+") == 0) {
                 outPutQueue.pop();
                 resultStack.push(new Plus(left, right));
                 continue;
-
             } else if (outPutQueue.front().compare("-")== 0) {
                 outPutQueue.pop();
                 resultStack.push(new Minus(left, right));
                 continue;
-
             } else if (outPutQueue.front().compare("*")== 0) {
                 outPutQueue.pop();
                 resultStack.push(new Mul(left, right));
-
                 continue;
             } else if (outPutQueue.front().compare("/")== 0) {
                 if (right->calculate() == 0.0) {
@@ -279,7 +259,6 @@ Expression* Interpreter:: interpret(string expressionString) {
                 }
             }
         }
-
     }
     if(resultStack.size() == 1) {
         return resultStack.top();
@@ -295,7 +274,6 @@ Expression* Interpreter:: interpret(string expressionString) {
     }
     return resultStack.top();
 }
-
 // the methos check if the string is a number
 bool  Interpreter :: isnumber(string s) {
     int stringLength = s.length();
@@ -317,7 +295,6 @@ bool  Interpreter :: isnumber(string s) {
     }
     return flag;
 }
-
 // set the variable in map
 void Interpreter :: setVariables(string variables) {
     size_t pos = 0;
@@ -332,7 +309,6 @@ void Interpreter :: setVariables(string variables) {
         strcpy(tokenArray, token.c_str());
         int lenghtValString = 1;
         if (isalpha(tokenArray[0])) {
-
             valName = valName + tokenArray[0];
             while (tokenArray[lenghtValString] != '=') {
                 //creating the variable name
@@ -348,7 +324,6 @@ void Interpreter :: setVariables(string variables) {
                 //creating the value
                 valValueString = valValueString + tokenArray[i];
             }
-
             if (isnumber(valValueString)) {
                 this->variableMap[valName] = valValueString;
                 continue;
@@ -378,7 +353,6 @@ void Interpreter :: setVariables(string variables) {
             } else {
                 throw ("invalid value name");
             }
-
         }
         for (unsigned i = lenghtValString + 1; i < variablesLength; i++) {
             valValueString = valValueString + variablesArray[i];

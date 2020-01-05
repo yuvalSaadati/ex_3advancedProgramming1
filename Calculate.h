@@ -8,6 +8,9 @@
 #include <regex>
 #include "Expression.h"
 using namespace std;
+/*
+ * this classes from ex01 which can calculate experssion
+ * */
 class Calculate {};
 
 class Variable : public Expression{
