@@ -24,7 +24,6 @@ var rpm <- sim("/engines/engine/rpm")
 Print("waiting 2 minutes for gui")
 Sleep(60000)
 Print("let's start")
-warp = 32000
 Sleep(1000)
 magnetos = 3
 throttle = 0.2

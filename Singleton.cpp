@@ -324,7 +324,6 @@ float Singleton::calculateExpression(string s){
         // calculate the interpreter by the s tat has given to the function
         float f= e->calculate();
         delete e;
-        int x;
         delete interpreter;
         delete[] arrayExpression;
         return f;

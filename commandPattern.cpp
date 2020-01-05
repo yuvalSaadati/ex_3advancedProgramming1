@@ -82,7 +82,6 @@ void OpenServerCommand::simDataParser(char * buffer) {
                         it->second->value = stof(token);
                         mutex_lock.unlock();
                     }
-                    cout << it->second->value << ", ";
                 }
             }
             i++;
@@ -124,7 +123,6 @@ void OpenServerCommand::simDataParser(char * buffer) {
                             it->second->value = stof(value);
                             mutex_lock.unlock();
                         }
-                        cout<<it->second->value<<", ";
                     }
                 }
                 if (flag == 0) { //if the sim isn't in the symbolTable then add it
@@ -132,7 +130,6 @@ void OpenServerCommand::simDataParser(char * buffer) {
                     Singleton().getInstance()->symbolTable[Singleton().getInstance()->valuesFromSim[i]] =
                             new ObjectData(0, Singleton().getInstance()->valuesFromSim[i], stof(value));
                     mutex_lock.unlock();
-                    cout<<value<<", ";
                 } else {
                     flag = 0;
                 }
@@ -142,7 +139,6 @@ void OpenServerCommand::simDataParser(char * buffer) {
         }
         if(leftValFlag == 0){ //if we read 36 values and got \n
             buffer++;
-            cout<<""<<endl;
             i = 0;
         }
         leftValFlag = 0;
