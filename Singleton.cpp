@@ -17,7 +17,7 @@ Singleton* Singleton::getInstance()
  */
 Singleton::Singleton()
 {
-    //creating map which the key is string and the value is command
+    //creating map which the key is string and the value is command object
     CommandInterface *openDataServer = new OpenServerCommand();
     commandMAp["openDataServer"] = openDataServer;
     CommandInterface *connectCommand = new ConnectCommand();
@@ -36,30 +36,34 @@ Singleton::Singleton()
     commandMAp["if"] = ifCommand;
 }
 /*
- *
+ * the lexer read line by line from fly.txt and every word which sperate by '() ,"' and tab will be inserted to
+ * lexerVector. lexerVector will be return to the calling function and will contain all the data that need to run the
+ * simulator.
  */
 vector<string> Singleton::lexer(string s){
-    // vector of strings
+    // vector of strings. every string is diffrent word in fly.txt
     vector<string> lexerVector;
-    // open the file "fly.txt" which save in file ex33
+    // open the file "fly.txt"
     std::ifstream flyText;
     flyText.open(s);
+    // check if we can open the file
     if(flyText) {
         string myLine;
         // reade the file line by line
         while (getline(flyText, myLine)) {
             string s1 = myLine.c_str();
             string val="";
+            // convert string to char array
             int lineLength = s1.length();
             char* lineCharArray = new char[lineLength + 1];
             strcpy(lineCharArray, s1.c_str());
             char * token;
-            // split the line char array by ( ) and space
+            // split the line char array by ( ) , " space and tab
             token = strtok (lineCharArray,"( ),\"\t");
             int i = 0;
-            string firstWord = myLine.substr(0, myLine.find(" "));
+            // take the first word from the line
             size_t pos = 0;
-            firstWord = myLine.substr(0, myLine.find("("));
+            string firstWord = myLine.substr(0, myLine.find("("));
             if(firstWord.compare("openDataServer") == 0){
                 lexerVector.push_back("openDataServer");
                 myLine.erase(0, 14);
@@ -98,11 +102,11 @@ vector<string> Singleton::lexer(string s){
             string tokenEqual;
             firstWord = myLine.substr(0, myLine.find(" "));
             if(firstWord.compare("while") != 0 && firstWord.compare("if") != 0) {
-
+                // line that contain the char '=' can be in 2 cases
                 if ((pos = myLine.find("=")) != string::npos) {
                     myLine.erase(std::remove(myLine.begin(), myLine.end(), '\t'), myLine.end());
                     if (firstWord.compare("var") == 0) {
-                        // var ho = head
+                        // case 1 ex. var ho = head
                         lexerVector.push_back("var");
                         string valName = myLine.substr(0, pos);
                         valName.erase(0, 4);
@@ -114,7 +118,7 @@ vector<string> Singleton::lexer(string s){
                         myLine.erase(std::remove(myLine.begin(), myLine.end(), ' '), myLine.end());
                         lexerVector.push_back(myLine);
                     } else {
-                        //wrap = 3400
+                        //case 2 ex. wrap = 3400
                         string valName = myLine.substr(0, pos);
                         valName.erase(std::remove(valName.begin(), valName.end(), '='), valName.end());
                         valName.erase(std::remove(valName.begin(), valName.end(), ' '), valName.end());
@@ -129,11 +133,11 @@ vector<string> Singleton::lexer(string s){
                     continue;
                 }
             }
+            // read token by space () " and tab
             while (token != NULL){
                 i+=strlen(token);
                 if(strcmp(token, "Print")==0){
                     lexerVector.push_back(token);
-                    // myLine=myLine.substr(myLine.find_first_of("(")+1);
                     // create the line print withput"()
                     myLine.erase(std::remove(myLine.begin(), myLine.end(), '\t'), myLine.end());
                     myLine.erase(0, 6);
@@ -158,7 +162,6 @@ vector<string> Singleton::lexer(string s){
                     token = strtok(NULL, "() ,\"\t");
                 }
             }
-            delete[] lineCharArray;
         }
         flyText.close();
     }
@@ -168,27 +171,42 @@ vector<string> Singleton::lexer(string s){
     }
     return lexerVector;
 }
-
+/*
+ * read every string from lexerVector. if the string is equal to one of the command object that are in commandMAp.
+ * so we will get the value of this command object.
+ * then we will create valString which will be contain all the data about each command object,
+ * and will be send by execute function of the command object.
+ * the execute function of the command object will return a number and we will skip this number in the for loop.
+ */
 void Singleton:: parser(vector<string> lexerVector) {
+    // for loop read every string from the lexer
     for (int i = 0; i < lexerVector.size(); i++) {
+        // iterator which find key in commandMAp by the command name that given in fly.txt and stored in lexerVector[i]
+        // during this function we will run execute function of every command object
         map<string,CommandInterface*>::iterator it = this->commandMAp.find(lexerVector[i]);
         if (it != this->commandMAp.end()) {
+            // this vector contain all the data about each command object, and will be send by execute function
             vector<string> valString;
             if(lexerVector[i].compare("while") == 0) {
                 while(lexerVector[i].compare("}") != 0) {
+                    // pushing the while condition and while body
                     valString.push_back(lexerVector[i]);
                     i++;
                 }
             } else if(lexerVector[i].compare("if") == 0){
                 while(lexerVector[i].compare("}") != 0) {
+                    // pushing the if condition and if body
                     valString.push_back(lexerVector[i]);
                     i++;
                 }
             } else if(lexerVector[i].compare("openDataServer")==0) {
+                // pushing only the port of the server
                 valString.push_back(lexerVector[i+1]);
             }
             else if(lexerVector[i].compare("connectControlClient")==0) {
+                // pushing the ip of the client
                 valString.push_back(lexerVector[i+1]);
+                // pushing the port of the client
                 valString.push_back(lexerVector[i+2]);
             }
             else if(lexerVector[i].compare("var")==0) {
@@ -196,22 +214,28 @@ void Singleton:: parser(vector<string> lexerVector) {
                 valString.push_back(lexerVector[i+2]);
                 if(valString[valString.size() - 1] == "=")
                 {
+                    // case 1 example: var ho = heading
                     valString.push_back(lexerVector[i+3]);
                 } else{
+                    // case 2 example: var warp -> sim("/sim/time/warp")
                     valString.push_back(lexerVector[i+4].erase(0,1));
                 }
             }
             else if(lexerVector[i].compare("Print")==0) {
+                // pushing string or exprission which al in one string
                 valString.push_back(lexerVector[i+1]);
             }
             else if(lexerVector[i].compare("Sleep")==0) {
+                // pusing the number that is the seconds that the thread will sleep
                 valString.push_back(lexerVector[i+1]);
             }
             else if(lexerVector[i].compare("=") == 0) {
+                // for example wrap = 3400
                 valString.push_back(lexerVector[i-1]);
                 valString.push_back(lexerVector[i+1]);
             }
             int skipCount = (it->second)->execute(valString);
+            // no need to pass on string that already inserted to valString, so we askip on theme
             i+=skipCount;
         }
     }
