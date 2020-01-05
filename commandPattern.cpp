@@ -196,12 +196,10 @@ int ConnectCommand::execute(vector<string> valString){
     return 2;
 }
 /*
- * the constracture of DefineVarCommand set the sim directories of each value
+ * the constracture of DefineVarCommand
  */
 DefineVarCommand::DefineVarCommand(string simDirectories[]){
-    for(int i= 0; i < 36; i++){
-        this->simDirectoris[i] = simDirectories[i];
-    }
+
 }
 /*
  * set the values of each variable by the information which given in the flt.txt
